@@ -84,25 +84,6 @@
                                     of the new records to review
                                     in the menu 'Connectors > Checkpoint'.
                                 </p>
-                                <group>
-                                    <label string="Export product categories" class="oe_inline"/>
-                                    <div>
-                                        <button name="sync_product_categories"
-                                            type="object"
-                                            class="oe_highlight"
-                                            string="Export in background"/>
-                                    </div>
-                                </group>
-                                
-                                <group>
-                                    <label string="Export products" class="oe_inline"/>
-                                    <div>
-                                        <button name="export_products"
-                                            type="object"
-                                            class="oe_highlight"
-                                            string="Export in background "/>
-                                    </div>
-                                </group>
                             </page>
                             <page name="advanced_configuration" string="Advanced Configuration">
                                 <group>

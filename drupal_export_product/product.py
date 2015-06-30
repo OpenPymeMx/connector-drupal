@@ -29,10 +29,12 @@ from openerp.addons.connector.unit.mapper import (
     ExportMapper, mapping
 )
 
-from .backend import drupal
-from .event import on_product_price_changed
-from .unit.export_synchronizer import DrupalExporter
-from .unit.backend_adapter import DrupalCRUDAdapter
+from openerp.addons.connector_drupal_ecommerce.backend import drupal
+from openerp.addons.connector_drupal_ecommerce.event import (
+    on_product_price_changed
+)
+from openerp.addons.connector_drupal_ecommerce.unit.export_synchronizer import DrupalExporter
+from openerp.addons.connector_drupal_ecommerce.unit.backend_adapter import DrupalCRUDAdapter
 
 
 class product_template(orm.Model):

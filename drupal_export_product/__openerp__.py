@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
-##############################################################################
+###########################################################################
+#    Module Writen to OpenERP, Open Source Management Solution
 #
-#    Copyright 2013 Camptocamp SA
-#    Copyright 2013 Akretion
+#    Copyright (c) 2015 OpenPyme - http://www.openpyme.mx/
+#    All Rights Reserved.
+#    Coded by: Agustín Cruz (agustin.cruz@openpyme.mx)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -22,7 +24,7 @@
 {'name': 'Connector for Drupal Ecommerce',
  'version': '1.0',
  'category': 'Connector',
- 'author': "OpenPyme,Odoo Community Association (OCA)",
+ 'author': "OpenPyme, Odoo Community Association (OCA)",
  'website': 'http://openerp-connector.com',
  'license': 'AGPL-3',
  'description': """
@@ -55,14 +57,13 @@ Data Model
 .. _`prestashoperpconnect`: https://launchpad.net/prestashoperpconnect
 """,
  'depends': [
-    'connector',
-    'connector_base_product',
+    'product',
+    'stock',
+    'connector_drupal_ecommerce',
  ],
  'data': [
-    'security/security.xml',
-    'security/ir.model.access.csv',
-    'views/drupal_model.xml',
-    'menu/drupal_menu.xml',
+    'views/product_view.xml',
+    'wizard/export_product.xml',
  ],
  'installable': True,
  }

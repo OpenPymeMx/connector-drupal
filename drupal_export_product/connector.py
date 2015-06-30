@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
-##############################################################################
+###########################################################################
+#    Module Writen to OpenERP, Open Source Management Solution
 #
-#    Copyright 2015 OpenPyme México
+#    Copyright (c) 2015 OpenPyme - http://www.openpyme.mx/
+#    All Rights Reserved.
+#    Coded by: Agustín Cruz (agustin.cruz@openpyme.mx)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -16,12 +19,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-##############################################################################
+###########################################################################
 
-from . import event
-from . import unit
+from openerp.addons.connector.connector import install_in_connector
 
-from . import backend
-from . import drupal_model
-from . import connector
-from . import related_action
+install_in_connector()

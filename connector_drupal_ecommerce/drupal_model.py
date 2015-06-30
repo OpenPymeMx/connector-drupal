@@ -33,6 +33,7 @@ from .unit.export_synchronizer import export_record
 class DrupalDomains(orm.Model):
     """
     Class for set Domains for information sync with Drupal
+    TODO: Is this the best way to acomplish the feature?
     """
     _name = 'drupal.domain'
     _description = 'Domain for limit objects sync with Drupal'
