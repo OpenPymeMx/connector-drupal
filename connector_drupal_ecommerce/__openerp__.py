@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
-##############################################################################
+###########################################################################
+#    Module Writen to OpenERP, Open Source Management Solution
 #
-#    Copyright 2013 Camptocamp SA
-#    Copyright 2013 Akretion
+#    Copyright (c) 2015 OpenPyme - http://www.openpyme.mx/
+#    All Rights Reserved.
+#    Coded by: Agustín Cruz (agustin.cruz@openpyme.mx)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -17,7 +19,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-##############################################################################
+###########################################################################
 
 {'name': 'Connector for Drupal Ecommerce',
  'version': '1.0',

@@ -1,32 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-
-        <record id="view_drupal_domains_form" model="ir.ui.view">
-            <field name="name">drupal.domains.form</field>
-            <field name="model">drupal.domain</field>
-            <field name="arch" type="xml">
-                <form string="Object Domain" version ="7.0">
-                    <group>
-                        <field name="object"/>
-                        <field name="backend" />
-                        <field name="domain" />
-                    </group>
-                </form>
-            </field>
-        </record>
-        
-        <record id="view_drupal_domains_tree" model="ir.ui.view">
-            <field name="name">drupal.domains.tree</field>
-            <field name="model">drupal.domain</field>
-            <field name="arch" type="xml">
-                <tree string="Object Domains" version="7.0">
-                    <field name="object"/>
-                    <field name="domain" />
-                </tree>
-            </field>
-        </record>
-        
+            
         <record id="view_drupal_backend_form" model="ir.ui.view">
             <field name="name">drupal.backend.form</field>
             <field name="model">drupal.backend</field>
@@ -55,9 +30,6 @@
                                         <field name="username" colspan="2"/>
                                         <field name="password" password="True" colspan="2"/>
                                     </group>
-                                </page>
-                                <page name="advanced_configuration" string="Advanced Configuration">
-                                    <field name="domains" />
                                 </page>
                             </notebook>
                         </group>

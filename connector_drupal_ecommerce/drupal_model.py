@@ -30,29 +30,6 @@ from openerp.addons.connector.session import ConnectorSession
 from .unit.export_synchronizer import export_record
 
 
-class DrupalDomains(orm.Model):
-    """
-    Class for set Domains for information sync with Drupal
-    TODO: Is this the best way to acomplish the feature?
-    """
-    _name = 'drupal.domain'
-    _description = 'Domain for limit objects sync with Drupal'
-
-    _columns = {
-        'object': fields.many2one(
-            'ir.model', 'Model',
-            required=True, help='Object to limit',
-        ),
-        'domain': fields.char(
-            'Domain', required=True,
-            help='Domain for limit the objects sync with Drupal'
-        ),
-        'backend': fields.many2one(
-            'drupal.backend', 'Backend', required=True
-        )
-    }
-
-
 class DrupalBackend(orm.Model):
     """
     Base class for Drupal Backend
@@ -96,10 +73,6 @@ class DrupalBackend(orm.Model):
         ),
         'password': fields.char(
             'Password', help="Webservice password"
-        ),
-        'domains': fields.one2many(
-            'drupal.domain', 'backend',
-            'Domains', help='Create one line for every object'
         ),
         'default_lang_id': fields.many2one(
             'res.lang', 'Default Drupal Language',
