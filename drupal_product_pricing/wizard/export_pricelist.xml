@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+    
+        <record id="drupal_export_pricelist" model="ir.ui.view">
+            <field name="name">drupal_export_pricelist</field>
+            <field name="model">drupal.export.pricelist</field>
+            <field name="arch" type="xml">
+                <form string="Export Pricelist" version ="7.0">
+                    <group>
+                        <field name="backend_id" widget="selection"/>
+                    </group>
+                    <footer>
+                        <button name="export_to_drupal" string="Export" type="object" class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link" special="cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+        
+        <record model="ir.actions.act_window" id="action_export_pricelist">
+            <field name="name">Export Pricelist</field>
+            <field name="res_model">drupal.export.pricelist</field>
+            <field name="src_model">product.pricelist</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="drupal_export_pricelist"/>
+            <field name="target">new</field>
+        </record>
+        
+        <record model="ir.values" id="ir_open_export_form">
+            <field name="key2">client_action_multi</field>
+            <field name="model">product.pricelist</field>
+            <field name="name">action_export_pricelist</field>
+            <field name="value" eval="'ir.actions.act_window,%d'%action_export_pricelist"/>
+            <field name="object" eval="True"/>
+        </record>
+    
+    </data>
+</openerp>

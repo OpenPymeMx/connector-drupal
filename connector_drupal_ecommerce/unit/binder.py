@@ -60,7 +60,7 @@ class DrupalModelBinder(DrupalBinder):
         with self.session.change_context({'active_test': False}):
             binding_ids = self.session.search(
                 self.model._name,
-                [('magento_id', '=', str(external_id)),
+                [('drupal_id', '=', str(external_id)),
                  ('backend_id', '=', self.backend_record.id)])
         if not binding_ids:
             return None

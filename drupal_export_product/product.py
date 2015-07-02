@@ -37,6 +37,17 @@ from openerp.addons.connector_drupal_ecommerce.unit.export_synchronizer import D
 from openerp.addons.connector_drupal_ecommerce.unit.backend_adapter import DrupalCRUDAdapter
 
 
+class drupal_backend(orm.Model):
+    """ Add relation to drupal.product.product object on backend """
+    _inherit = 'drupal.backend'
+    _columns = {
+        'product_binding_ids': fields.one2many(
+            'drupal.product.product', 'backend_id', string='Drupal Products',
+            readonly=True
+        ),
+    }
+
+
 class product_template(orm.Model):
     _inherit = 'product.template'
 
@@ -105,10 +116,10 @@ class product_product(orm.Model):
         return result
 
     _columns = {
-        'has_checkpoint': fields.function(_get_checkpoint,
-                                          type='boolean',
-                                          readonly=True,
-                                          string='Has Checkpoint'),
+        'has_checkpoint': fields.function(
+            _get_checkpoint, type='boolean', readonly=True,
+            string='Has Checkpoint'
+        ),
         'drupal_bind_ids': fields.one2many(
             'drupal.product.product', 'openerp_id',
             string="Drupal Bindings"

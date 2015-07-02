@@ -320,21 +320,8 @@ class DrupalExporter(DrupalBaseExporter):
         return self.mapper.map_record(self.binding_record)
 
     def _after_export(self):
-        """ Can do several actions after exporting a record on magento """
+        """ Can do several actions after exporting a record on drupal """
         pass
-
-    def _validate_data(self, data):
-        """ Check if the values to import are correct
-        Kept for retro-compatibility. To remove in 8.0
-        Pro-actively check before the ``Model.create`` or ``Model.update``
-        if some fields are missing or invalid
-        Raise `InvalidDataError`
-        """
-        _logger.warning('Deprecated: _validate_data is deprecated '
-                        'in favor of validate_create_data() '
-                        'and validate_update_data()')
-        self._validate_create_data(data)
-        self._validate_update_data(data)
 
     def _validate_create_data(self, data):
         """ Check if the values to import are correct

@@ -81,7 +81,7 @@
             </field>
         </record>
 
-        <record id="view_magento_product_tree" model="ir.ui.view">
+        <record id="view_drupal_product_tree" model="ir.ui.view">
             <field name="name">drupal.product.product.tree</field>
             <field name="model">drupal.product.product</field>
             <field name="arch" type="xml">
