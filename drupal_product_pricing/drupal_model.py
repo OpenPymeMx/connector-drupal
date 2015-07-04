@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
-##############################################################################
+###########################################################################
+#    Module Writen to OpenERP, Open Source Management Solution
 #
-#    Copyright 2015 OpenPyme México
+#    Copyright (c) 2015 OpenPyme - http://www.openpyme.mx/
+#    All Rights Reserved.
+#    Coded by: Agustín Cruz (agustin.cruz@openpyme.mx)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -18,8 +21,14 @@
 #
 ##############################################################################
 
-from . import connector
-from . import wizard
-from . import pricelist
-from . import unit
-from . import drupal_model
+from openerp.osv import orm, fields
+
+
+class drupal_backend(orm.Model):
+    _inherit = 'drupal.backend'
+    _columns = {
+        'drupal_pricelist_ids': fields.one2many(
+            'drupal.product.pricelist', 'backend_id',
+            string='Drupal Pricelist', readonly=True
+        )
+    }

@@ -324,7 +324,7 @@ class DrupalExporter(DrupalBaseExporter):
         pass
 
     def _validate_create_data(self, data):
-        """ Check if the values to import are correct
+        """ Check if the values to export are correct
         Pro-actively check before the ``Model.create`` if some fields
         are missing or invalid
         Raise `InvalidDataError`
@@ -332,7 +332,7 @@ class DrupalExporter(DrupalBaseExporter):
         return
 
     def _validate_update_data(self, data):
-        """ Check if the values to import are correct
+        """ Check if the values to export are correct
         Pro-actively check before the ``Model.update`` if some fields
         are missing or invalid
         Raise `InvalidDataError`

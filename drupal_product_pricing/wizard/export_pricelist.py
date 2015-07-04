@@ -21,7 +21,9 @@
 from openerp.osv import orm, fields
 
 from openerp.addons.connector.session import ConnectorSession
-from openerp.addons.connector_drupal_ecommerce.unit.export_synchronizer import export_record
+from openerp.addons.connector_drupal_ecommerce.unit.export_synchronizer import (
+    export_record
+)
 
 
 class export_pricelist(orm.TransientModel):

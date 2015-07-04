@@ -30,9 +30,6 @@ from openerp.addons.connector.unit.mapper import (
 )
 
 from openerp.addons.connector_drupal_ecommerce.backend import drupal
-from openerp.addons.connector_drupal_ecommerce.event import (
-    on_product_price_changed
-)
 from openerp.addons.connector_drupal_ecommerce.unit.export_synchronizer import DrupalExporter
 from openerp.addons.connector_drupal_ecommerce.unit.backend_adapter import DrupalCRUDAdapter
 
@@ -46,54 +43,6 @@ class drupal_backend(orm.Model):
             readonly=True
         ),
     }
-
-
-class product_template(orm.Model):
-    _inherit = 'product.template'
-
-    # TODO implement set function and also support multi tax
-    def _price_changed(self, cr, uid, ids, vals, context=None):
-        """ Fire the ``on_product_price_changed`` on all the variants of
-        the template if the price if the product could have changed.
-
-        If one of the field used in a sale pricelist item has been
-        modified, we consider that the price could have changed.
-
-        There is no guarantee that's the price actually changed,
-        because it depends on the pricelists.
-        """
-        if context is None:
-            context = {}
-        type_obj = self.pool['product.price.type']
-        price_fields = type_obj.sale_price_fields(cr, uid, context=context)
-        # restrict the fields to the template ones only, so if
-        # the write has been done on product.product, we won't
-        # update all the variant if a price field of the
-        # variant has been changed
-        tmpl_fields = [field for field in vals if field in self._columns]
-        if any(field in price_fields for field in tmpl_fields):
-            product_obj = self.pool['product.product']
-            session = ConnectorSession(cr, uid, context=context)
-            product_ids = product_obj.search(cr, uid,
-                                             [('product_tmpl_id', 'in', ids)],
-                                             context=context)
-            # when the write is done on the product.product, avoid
-            # to fire the event 2 times
-            if context.get('from_product_ids'):
-                product_ids = list(set(product_ids) -
-                                   set(context['from_product_ids']))
-            for prod_id in product_ids:
-                on_product_price_changed.fire(session,
-                                              product_obj._name,
-                                              prod_id)
-
-    def write(self, cr, uid, ids, vals, context=None):
-        if isinstance(ids, (int, long)):
-            ids = [ids]
-        result = super(product_template, self).write(cr, uid, ids,
-                                                     vals, context=context)
-        self._price_changed(cr, uid, ids, vals, context=context)
-        return result
 
 
 class product_product(orm.Model):
@@ -133,43 +82,6 @@ class product_product(orm.Model):
         return super(product_category, self).copy_data(
             cr, uid, id, default=default, context=context
         )
-
-    def _price_changed(self, cr, uid, ids, vals, context=None):
-        """ Fire the ``on_product_price_changed`` if the price
-        if the product could have changed.
-
-        If one of the field used in a sale pricelist item has been
-        modified, we consider that the price could have changed.
-
-        There is no guarantee that's the price actually changed,
-        because it depends on the pricelists.
-        """
-        type_obj = self.pool['product.price.type']
-        price_fields = type_obj.sale_price_fields(cr, uid, context=context)
-        if any(field in price_fields for field in vals):
-            session = ConnectorSession(cr, uid, context=context)
-            for prod_id in ids:
-                on_product_price_changed.fire(session, self._name, prod_id)
-
-    def write(self, cr, uid, ids, vals, context=None):
-        if context is None:
-            context = {}
-        if isinstance(ids, (int, long)):
-            ids = [ids]
-        context = context.copy()
-        context['from_product_ids'] = ids
-        result = super(product_product, self).write(
-            cr, uid, ids, vals, context=context
-        )
-        self._price_changed(cr, uid, ids, vals, context=context)
-        return result
-
-    def create(self, cr, uid, vals, context=None):
-        product_ids = super(product_product, self).create(
-            cr, uid, vals, context=context
-        )
-        self._price_changed(cr, uid, [product_ids], vals, context=context)
-        return product_ids
 
 
 class drupal_product_product(orm.Model):
