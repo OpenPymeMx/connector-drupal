@@ -40,6 +40,7 @@ class DrupalServices(object):
         self.endpoint = config['endpoint'].strip().lstrip('/')
         self.username = config['username'].strip()
         self.password = config['password'].strip()
+        self.timeout = config['timeout']
 
         # set other things
         self.services_link = "%s/%s" % (self.base_url, self.endpoint)
@@ -73,7 +74,9 @@ class DrupalServices(object):
         _logger.debug('Making connection to: %s' % link)
 
         # this is the actually connection.
-        response = getattr(self.session, method)(link, data=data)
+        response = getattr(self.session, method)(
+            link, data=data, timeout=self.timeout
+        )
         try:
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
@@ -119,7 +122,8 @@ class DrupalCRUDAdapter(CRUDAdapter):
             {'base_url': backend.url,
              'endpoint': backend.endpoint,
              'username': backend.username,
-             'password': backend.password}
+             'password': backend.password,
+             'timeout':  backend.timeout}
         )
         self.drupal = drupal
         # Login user for be able to do next operations

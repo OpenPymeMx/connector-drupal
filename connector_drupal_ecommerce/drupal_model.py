@@ -74,6 +74,9 @@ class DrupalBackend(orm.Model):
         'password': fields.char(
             'Password', help="Webservice password"
         ),
+        'timeout': fields.integer(
+            'Timeout', help="Timeout for rest connections with Drupal backend"
+        ),
         'default_lang_id': fields.many2one(
             'res.lang', 'Default Drupal Language',
             help="If a default language is selected, the records "
@@ -89,6 +92,10 @@ class DrupalBackend(orm.Model):
         )
     }
 
+    _defaults = {
+        'timeout': 1
+    }
+
     def test_backend(self, cr, uid, ids, context=None):
         """
         Test connection with selected Drupal backend
@@ -100,7 +107,8 @@ class DrupalBackend(orm.Model):
                 {'base_url': backend.url,
                  'endpoint': backend.endpoint,
                  'username': backend.username,
-                 'password': backend.password}
+                 'password': backend.password,
+                 'timeout':  backend.timeout}
             )
             drupal.user_login()
         try:

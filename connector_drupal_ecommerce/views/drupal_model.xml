@@ -29,6 +29,7 @@
                                             colspan="2"/>
                                         <field name="username" colspan="2"/>
                                         <field name="password" password="True" colspan="2"/>
+                                        <field name="timeout" colspan="2" />
                                     </group>
                                 </page>
                             </notebook>
