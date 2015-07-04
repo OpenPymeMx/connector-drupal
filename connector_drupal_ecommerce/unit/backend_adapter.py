@@ -74,9 +74,16 @@ class DrupalServices(object):
 
         # this is the actually connection.
         response = getattr(self.session, method)(link, data=data)
-        if not response.ok:
-            raise Exception(response.reason)
-        return response.json()
+        try:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            raise Exception(e.message)
+        # Decode json response or raise error
+        try:
+            response = response.json()
+        except ValueError:
+            raise Exception(response)
+        return response
 
     def user_login(self):
         """
