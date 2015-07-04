@@ -25,3 +25,4 @@ from . import backend
 from . import drupal_model
 from . import connector
 from . import related_action
+from . import consumer

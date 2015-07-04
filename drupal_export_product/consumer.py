@@ -18,7 +18,14 @@
 #
 ##############################################################################
 
-from . import product
-from . import wizard
-from . import connector
-from . import consumer
+from openerp.addons.connector.event import (
+    on_record_write, on_record_unlink
+)
+from openerp.addons.connector_drupal_ecommerce import consumer
+
+
+@on_record_write(model_names=['product.product', 'product.category'])
+def delay_export_all_bindings(session, model_name, record_id, vals):
+    consumer.delay_export_all_bindings(
+        session, model_name, record_id, vals
+    )
