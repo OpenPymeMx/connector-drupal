@@ -46,6 +46,7 @@ class DrupalModelBinder(DrupalBinder):
     _model_name = [
         'drupal.product.category',
         'drupal.product.product',
+        'drupal.product.node'
     ]
 
     def to_openerp(self, external_id, unwrap=False):

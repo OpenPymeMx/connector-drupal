@@ -354,7 +354,7 @@ class DrupalExporter(DrupalBaseExporter):
         return map_record.values(fields=fields, **kwargs)
 
     def _update(self, data):
-        """ Update an Drupal record """
+        """ Update a Drupal record """
         assert self.drupal_id
         # special check on data before export
         self._validate_update_data(data)

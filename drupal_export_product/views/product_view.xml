@@ -1,6 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
+    
+        <record id="view_drupal_product_node_form" model="ir.ui.view">
+            <field name="name">drupal.product.node.form</field>
+            <field name="model">drupal.product.node</field>
+            <field name="arch" type="xml">
+                <form string="Drupal Node Product">
+                    <group>
+                        <field name="backend_id"/>
+                        <field name="drupal_id"/>
+                        <field name="created_at" readonly="1"/>
+                        <field name="updated_at" readonly="1"/>
+                    </group>
+                </form>
+            </field>
+        </record>
+        
+        <record id="view_drupal_product_node_tree" model="ir.ui.view">
+            <field name="name">drupal.product.node.tree</field>
+            <field name="model">drupal.product.node</field>
+            <field name="arch" type="xml">
+                <tree string="Drupal Node" version="7.0">
+                    <field name="backend_id" />
+                </tree>
+            </field>
+        </record>
+    
+        <record id="view_product_node_form" model="ir.ui.view">
+            <field name="name">product.node.form</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="connector_base_product.product_normal_form_view" />
+            <field name="arch" type="xml">
+                <page name="connector" position="inside">
+                    <group string="Drupal Node Bindings">
+                        <field name="drupal_node_bind_ids" nolabel="1">
+                            <tree>
+                                <field name="backend_id"/>
+                            </tree>
+                        </field>
+                    </group>
+                </page>
+            </field>
+        </record>
 
         <record id="view_product_category_form" model="ir.ui.view">
             <field name="name">product.category.form.drupal</field>
@@ -39,53 +81,6 @@
             <field name="model">drupal.product.category</field>
             <field name="arch" type="xml">
                 <tree string="Drupal Product Category">
-                    <field name="backend_id"/>
-                </tree>
-            </field>
-        </record>
-        
-        <record id="product_normal_form_view" model="ir.ui.view">
-            <field name="name">product.product.form</field>
-            <field name="model">product.product</field>
-            <field name="inherit_id" ref="connector_base_product.product_normal_form_view"/>
-            <field name="arch" type="xml">
-                <page name="connector" position="attributes">
-                    <attribute name="invisible">0</attribute>
-                </page>
-                <page name="connector" position="inside">
-                    <group string="Drupal Bindings">
-                        <field name="drupal_bind_ids" nolabel="1">
-                            <tree>
-                                <field name="backend_id"/>
-                            </tree>
-                        </field>
-                    </group>
-                </page>
-            </field>
-        </record>
-
-        <record id="view_drupal_product_form" model="ir.ui.view">
-            <field name="name">drupal.product.product.form</field>
-            <field name="model">drupal.product.product</field>
-            <field name="arch" type="xml">
-                <form string="Drupal Product">
-                    <group>
-                        <field name="backend_id"/>
-                        <field name="drupal_id"/>
-                        <field name="created_at" readonly="1"/>
-                        <field name="updated_at" readonly="1"/>
-                    </group>
-                    <group string="Inventory Options">
-                    </group>
-                </form>
-            </field>
-        </record>
-
-        <record id="view_drupal_product_tree" model="ir.ui.view">
-            <field name="name">drupal.product.product.tree</field>
-            <field name="model">drupal.product.product</field>
-            <field name="arch" type="xml">
-                <tree string="Drupal Product">
                     <field name="backend_id"/>
                 </tree>
             </field>

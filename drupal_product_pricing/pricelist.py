@@ -43,7 +43,7 @@ from openerp.addons.connector_drupal_ecommerce.unit.backend_adapter import (
 )
 
 
-class pricelist(orm.Model):
+class product_pricelist(orm.Model):
     _inherit = 'product.pricelist'
 
     _columns = {
@@ -57,7 +57,7 @@ class pricelist(orm.Model):
         if default is None:
             default = {}
         default['drupal_bind_ids'] = False
-        return super(pricelist, self).copy_data(
+        return super(product_pricelist, self).copy_data(
             cr, uid, id, default=default, context=context
         )
 
@@ -139,6 +139,36 @@ class ProductPricelistAdapter(DrupalCRUDAdapter):
         return result['list_id']
 
 
+class price_type(orm.Model):
+    _inherit = 'product.price.type'
+
+    _columns = {
+        'pricelist_item_ids': fields.one2many(
+            'product.pricelist.item', 'base',
+            string='Pricelist Items',
+            readonly=True)
+    }
+
+    def sale_price_fields(self, cr, uid, context=None):
+        """ Returns a list of fields used by sale pricelists.
+        Used to know if the sale price could have changed
+        when one of these fields has changed.
+        """
+        item_obj = self.pool['product.pricelist.item']
+        item_ids = item_obj.search(
+            cr, uid,
+            [('price_version_id.pricelist_id.type', '=', 'sale')],
+            context=context
+        )
+        type_ids = self.search(
+            cr, uid,
+            [('pricelist_item_ids', 'in', item_ids)],
+            context=context
+        )
+        types = self.read(cr, uid, type_ids, ['field'], context=context)
+        return [t['field'] for t in types]
+
+
 class product_product(orm.Model):
     _inherit = 'product.product'
 
@@ -188,6 +218,9 @@ class product_product(orm.Model):
                             'pricelist_id': item.id,
                             'backend_id': backend.id,
                         })
+            # TODO: Change this function to stop using write on
+            # 'product.product'object because that is firing the update
+            # event on product_export module
             self.write(
                 cr, uid, [product.id],
                 {'drupal_priceitem_ids': [(0, 0, vals) for vals in missing]},

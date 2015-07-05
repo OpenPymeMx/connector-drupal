@@ -25,6 +25,7 @@
 from openerp.osv import orm, fields
 
 from openerp.addons.connector.session import ConnectorSession
+from openerp.addons.connector.exception import InvalidDataError
 from openerp.addons.connector.unit.mapper import (
     ExportMapper, mapping
 )
@@ -34,58 +35,27 @@ from openerp.addons.connector_drupal_ecommerce.unit.export_synchronizer import D
 from openerp.addons.connector_drupal_ecommerce.unit.backend_adapter import DrupalCRUDAdapter
 
 
-class drupal_backend(orm.Model):
-    """ Add relation to drupal.product.product object on backend """
-    _inherit = 'drupal.backend'
-    _columns = {
-        'product_binding_ids': fields.one2many(
-            'drupal.product.product', 'backend_id', string='Drupal Products',
-            readonly=True
-        ),
-    }
-
-
 class product_product(orm.Model):
     _inherit = 'product.product'
 
-    def _get_checkpoint(self, cr, uid, ids, name, arg, context=None):
-        result = {}
-        checkpoint_obj = self.pool.get('connector.checkpoint')
-        model_obj = self.pool.get('ir.model')
-        model_id = model_obj.search(cr, uid,
-                                    [('model', '=', 'product.product')],
-                                    context=context)[0]
-        for product_id in ids:
-            point_ids = checkpoint_obj.search(cr, uid,
-                                              [('model_id', '=', model_id),
-                                               ('record_id', '=', product_id),
-                                               ('state', '=', 'need_review')],
-                                              context=context)
-            result[product_id] = bool(point_ids)
-        return result
-
     _columns = {
-        'has_checkpoint': fields.function(
-            _get_checkpoint, type='boolean', readonly=True,
-            string='Has Checkpoint'
-        ),
-        'drupal_bind_ids': fields.one2many(
-            'drupal.product.product', 'openerp_id',
-            string="Drupal Bindings"
+        'drupal_node_bind_ids': fields.one2many(
+            'drupal.product.node', 'openerp_id',
+            string="Drupal Node Bindings"
         ),
     }
 
     def copy_data(self, cr, uid, id, default=None, context=None):
         if default is None:
             default = {}
-        default['drupal_bind_ids'] = False
-        return super(product_category, self).copy_data(
+        default['drupal_node_bind_ids'] = False
+        return super(product_product, self).copy_data(
             cr, uid, id, default=default, context=context
         )
 
 
-class drupal_product_product(orm.Model):
-    _name = 'drupal.product.product'
+class drupal_product_node(orm.Model):
+    _name = 'drupal.product.node'
     _inherit = 'drupal.binding'
     _inherits = {'product.product': 'openerp_id'}
     _description = 'Drupal Product'
@@ -112,8 +82,8 @@ class drupal_product_product(orm.Model):
 
 
 @drupal
-class ProductProductExport(DrupalExporter):
-    _model_name = ['drupal.product.product']
+class ProductNodeExport(DrupalExporter):
+    _model_name = ['drupal.product.node']
 
     def _export_dependencies(self):
         """ Export dependencies for the record """
@@ -122,10 +92,38 @@ class ProductProductExport(DrupalExporter):
             'drupal.product.category', exporter_class=ProductCategoryExport
         )
 
+    def _validate_create_data(self, data):
+        """ Check that is set Code on OpenERP product as we are exporting
+        to SKU field on Drupal that is master data for commerce
+        Raise `InvalidDataError`
+        """
+        data_product = data['field_product']['und']['form']
+        if not data_product['sku']:
+            raise InvalidDataError(
+                'The product does not have Code but is mandatory for Drupal'
+            )
+        return
+
+    def _after_export(self):
+        """ After export we need to create the drupal.product.product
+        object for being able to export stock levels
+        TODO: Refactor as a dependency and stop using commerce_kickstart
+        """
+        record = self.backend_adapter.read(self.drupal_id)
+        d_product_obj = self.session.pool.get('drupal.product.product')
+        d_product_obj.create(
+            self.session.cr, self.session.uid,
+            {'openerp_id': self.binding_record.openerp_id.id,
+             'drupal_id': record['field_product']['und'][0]['product_id'],
+             'backend_id': self.binding_record.backend_id.id},
+            context=self.session.context
+        )
+        return
+
 
 @drupal
-class ProductProductMapper(ExportMapper):
-    _model_name = 'drupal.product.product'
+class ProductNodeMapper(ExportMapper):
+    _model_name = 'drupal.product.node'
 
     direct = [
         ('name', 'title'),
@@ -142,7 +140,7 @@ class ProductProductMapper(ExportMapper):
         field_product['und']['form'] = {
             'commerce_price': {
                 'und': [{
-                    'amount': product.list_price,
+                    'amount': product.list_price * 100,
                     'currency_code': product.company_id.currency_id.name,
                 }]
             },
@@ -164,44 +162,14 @@ class ProductProductMapper(ExportMapper):
 
 
 @drupal
-class ProductProductAdapter(DrupalCRUDAdapter):
-    _model_name = 'drupal.product.product'
+class ProductNodeAdapter(DrupalCRUDAdapter):
+    _model_name = 'drupal.product.node'
     _drupal_model = 'node'
 
     def create(self, data):
         """ Create a record on the external system """
         result = self._call(self._drupal_model, data, 'post')
         return result['nid']
-
-
-class product_price_type(orm.Model):
-    _inherit = 'product.price.type'
-
-    _columns = {
-        'pricelist_item_ids': fields.one2many(
-            'product.pricelist.item', 'base',
-            string='Pricelist Items',
-            readonly=True)
-    }
-
-    def sale_price_fields(self, cr, uid, context=None):
-        """ Returns a list of fields used by sale pricelists.
-        Used to know if the sale price could have changed
-        when one of these fields has changed.
-        """
-        item_obj = self.pool['product.pricelist.item']
-        item_ids = item_obj.search(
-            cr, uid,
-            [('price_version_id.pricelist_id.type', '=', 'sale')],
-            context=context
-        )
-        type_ids = self.search(
-            cr, uid,
-            [('pricelist_item_ids', 'in', item_ids)],
-            context=context
-        )
-        types = self.read(cr, uid, type_ids, ['field'], context=context)
-        return [t['field'] for t in types]
 
 
 class product_category(orm.Model):

@@ -54,18 +54,18 @@ class export_product(orm.TransientModel):
             cr, uid, record_ids, context=context
         ):
             # If there is no binding object created yet then we create
-            if not len(record.drupal_bind_ids):
+            if not len(record.drupal_node_bind_ids):
                 vals = {
                     'openerp_id': record.id,
                     'backend_id': backend.id
                 }
                 product_obj.write(
                     cr, uid, record.id,
-                    {'drupal_bind_ids': [(0, 0, vals)]},
+                    {'drupal_node_bind_ids': [(0, 0, vals)]},
                     context=context
                 )
                 record.refresh()
-            for binding in record.drupal_bind_ids:
+            for binding in record.drupal_node_bind_ids:
                 export_record.delay(
                     session, binding._model._name, binding.id
                 )
