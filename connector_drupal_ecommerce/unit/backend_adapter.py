@@ -21,9 +21,13 @@
 #
 ###########################################################################
 
+from __future__ import division
+
 import requests
 import logging
 import json
+
+from datetime import datetime
 
 from openerp.addons.connector.unit.backend_adapter import CRUDAdapter
 
@@ -180,5 +184,10 @@ class DrupalCRUDAdapter(CRUDAdapter):
             return
 
     def search(self, filters=None):
-        """ Get a list of records from a given model """
+        """ Search records based on some filters """
         return self._call(self._drupal_model, filters, 'get')
+
+    def totimestamp(self, dt, epoch=datetime(1970, 1, 1)):
+        """ Helper function to convert date objects to timestamp """
+        td = dt - epoch
+        return (td.microseconds + (td.seconds + td.days * 86400) * 10 ** 6) / 10 ** 6

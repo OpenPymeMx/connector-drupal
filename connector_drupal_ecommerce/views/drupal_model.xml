@@ -58,6 +58,14 @@
                                     in the menu 'Connectors > Checkpoint'.
                                 </p>
                                 <group>
+                                    <label string="Import sales orders from website" class="oe_inline"/>
+                                    <field name='import_orders_from_date' class="oe_inline" nolabel="1"/>
+                                    <button name="import_sale_orders"
+                                        type="object"
+                                        class="oe_highlight"
+                                        string="Import in background"/>
+                                </group>
+                                <group>
                                     <label string="Update all the products stock quantities" class="oe_inline"/>
                                     <button name="update_product_stock_qty"
                                         type="object"

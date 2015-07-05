@@ -27,3 +27,6 @@ from . import backend
 from . import drupal_model
 from . import connector
 from . import product
+from . import sale
+from . import partner
+from . import sale_order_onchange

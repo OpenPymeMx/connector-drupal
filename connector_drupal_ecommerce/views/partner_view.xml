@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="view_partner_form" model="ir.ui.view">
+            <field name="name">res.partner.form</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="connector.view_partner_connector_form" />
+            <field name="arch" type="xml">
+                <page name="connector" position="attributes">
+                    <attribute name="invisible">0</attribute>
+                </page>
+                <page name="connector" position="inside">
+                    <group string="Drupal Bindings">
+                        <field name="drupal_bind_ids" nolabel="1"/>
+                    </group>
+                    <group string="Drupal Address Bindings">
+                        <field name="drupal_address_bind_ids" nolabel="1"/>
+                    </group>
+                </page>
+            </field>
+        </record>
+
+        <record id="view_drupal_res_partner_form" model="ir.ui.view">
+            <field name="name">drupal.res.partner.form</field>
+            <field name="model">drupal.res.partner</field>
+            <field name="arch" type="xml">
+                <form string="Drupal Partner" create="false"
+                       delete="false" version="7.0">
+                    <group>
+                        <field name="backend_id"/>
+                        <field name="drupal_id"/>
+                        <field name="created_at"/>
+                        <field name="updated_at"/>
+                        <field name="emailid"/>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_drupal_res_partner_tree" model="ir.ui.view">
+            <field name="name">drupal.res.partner.tree</field>
+            <field name="model">drupal.res.partner</field>
+            <field name="arch" type="xml">
+                <tree string="Drupal Partner" create="false"
+                       delete="false" version="7.0">
+                    <field name="backend_id"/>
+                </tree>
+            </field>
+        </record>
+        
+        <record id="view_drupal_address_form" model="ir.ui.view">
+            <field name="name">drupal.address.form</field>
+            <field name="model">drupal.address</field>
+            <field name="arch" type="xml">
+                <form string="Drupal Address" create="false"
+                       delete="false" version="7.0">
+                    <group>
+                        <field name="backend_id"/>
+                        <field name="drupal_id"/>
+                        <field name="created_at"/>
+                        <field name="updated_at"/>
+                        <field name="is_billing"/>
+                        <field name="is_shipping"/>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_drupal_address_tree" model="ir.ui.view">
+            <field name="name">drupal.address.tree</field>
+            <field name="model">drupal.address</field>
+            <field name="arch" type="xml">
+                <tree string="Drupal Address" create="false"
+                       delete="false" version="7.0">
+                    <field name="backend_id"/>
+                </tree>
+            </field>
+        </record>
+        
+    </data>
+</openerp>

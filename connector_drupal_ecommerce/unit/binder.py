@@ -46,7 +46,10 @@ class DrupalModelBinder(DrupalBinder):
     _model_name = [
         'drupal.product.category',
         'drupal.product.product',
-        'drupal.product.node'
+        'drupal.product.node',
+        'drupal.sale.order',
+        'drupal.res.partner',
+        'drupal.address'
     ]
 
     def to_openerp(self, external_id, unwrap=False):
@@ -62,15 +65,16 @@ class DrupalModelBinder(DrupalBinder):
             binding_ids = self.session.search(
                 self.model._name,
                 [('drupal_id', '=', str(external_id)),
-                 ('backend_id', '=', self.backend_record.id)])
+                 ('backend_id', '=', self.backend_record.id)]
+            )
         if not binding_ids:
             return None
         assert len(binding_ids) == 1, "Several records found: %s" % binding_ids
         binding_id = binding_ids[0]
         if unwrap:
-            return self.session.read(self.model._name,
-                                     binding_id,
-                                     ['openerp_id'])['openerp_id'][0]
+            return self.session.read(
+                self.model._name, binding_id, ['openerp_id']
+            )['openerp_id'][0]
         else:
             return binding_id
 

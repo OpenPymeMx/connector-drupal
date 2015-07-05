@@ -30,6 +30,7 @@ from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
 from openerp.addons.connector.queue.job import job
 from openerp.addons.connector.unit.synchronizer import ImportSynchronizer
 from openerp.addons.connector.exception import IDMissingInBackend
+from openerp.addons.connector.connector import Environment
 
 from ..connector import get_environment
 
@@ -82,23 +83,24 @@ class DrupalImportSynchronizer(ImportSynchronizer):
         # miss changes done in Drupal
         return drupal_date < sync_date
 
-    def _import_dependency(self, drupal_id, binding_model,
-                           importer_class=None, always=False):
+    def _import_dependency(
+        self, drupal_id, binding_model, importer_class=None, always=False
+    ):
         """ Import a dependency.
         The importer class is a class or subclass of
-        :class:`MagentoImportSynchronizer`. A specific class can be defined.
-        :param magento_id: id of the related binding to import
+        :class:`DrupalImportSynchronizer`. A specific class can be defined.
+        :param drupal_id: id of the related binding to import
         :param binding_model: name of the binding model for the relation
         :type binding_model: str | unicode
         :param importer_cls: :class:`openerp.addons.connector.\
                                      connector.ConnectorUnit`
-                             class or parent class to use for the export.
-                             By default: MagentoImportSynchronizer
+                             class or parent class to use for the import.
+                             By default: DrupalImportSynchronizer
         :type importer_cls: :class:`openerp.addons.connector.\
                                     connector.MetaConnectorUnit`
         :param always: if True, the record is updated even if it already
                        exists, note that it is still skipped if it has
-                       not been modified on Magento since the last
+                       not been modified on Drupal since the last
                        update. When False, it will import it only when
                        it does not yet exist.
         :type always: boolean
@@ -110,7 +112,8 @@ class DrupalImportSynchronizer(ImportSynchronizer):
         binder = self.get_binder_for_model(binding_model)
         if always or binder.to_openerp(drupal_id) is None:
             importer = self.get_connector_unit_for_model(
-                importer_class, model=binding_model)
+                importer_class, model=binding_model
+            )
             importer.run(drupal_id)
 
     def _import_dependencies(self):
@@ -158,8 +161,10 @@ class DrupalImportSynchronizer(ImportSynchronizer):
         self._validate_data(data)
         with self.session.change_context({'connector_no_export': True}):
             binding_id = self.session.create(self.model._name, data)
-        _logger.debug('%s %d created from drupal %s',
-                      self.model._name, binding_id, self.drupal_id)
+        _logger.debug(
+            '%s %d created from drupal %s',
+            self.model._name, binding_id, self.drupal_id
+        )
         return binding_id
 
     def _update_data(self, map_record, **kwargs):
@@ -171,8 +176,10 @@ class DrupalImportSynchronizer(ImportSynchronizer):
         self._validate_data(data)
         with self.session.change_context({'connector_no_export': True}):
             self.session.write(self.model._name, binding_id, data)
-        _logger.debug('%s %d updated from drupal %s',
-                      self.model._name, binding_id, self.drupal_id)
+        _logger.debug(
+            '%s %d updated from drupal %s',
+            self.model._name, binding_id, self.drupal_id
+        )
         return
 
     def _after_import(self, binding_id):
@@ -181,7 +188,7 @@ class DrupalImportSynchronizer(ImportSynchronizer):
 
     def run(self, drupal_id, force=False):
         """ Run the synchronization
-        :param drrupal_id: identifier of the record on Drupal
+        :param drupal_id: identifier of the record on Drupal
         """
         self.drupal_id = drupal_id
         try:
@@ -244,6 +251,18 @@ class DirectBatchImport(BatchImportSynchronizer):
         import_record(
             self.session, self.model._name, self.backend_record.id,
             record_id
+        )
+
+
+class DelayedBatchImport(BatchImportSynchronizer):
+    """ Delay import of the records """
+    _model_name = None
+
+    def _import_record(self, record_id, **kwargs):
+        """ Delay the import of the records"""
+        import_record(
+            self.session, self.model._name, self.backend_record.id,
+            record_id, **kwargs
         )
 
 

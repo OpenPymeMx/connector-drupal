@@ -25,7 +25,6 @@ import logging
 import psycopg2
 
 from datetime import datetime
-from pytz import timezone
 from contextlib import contextmanager
 
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
@@ -89,7 +88,6 @@ class DrupalBaseExporter(ExportSynchronizer):
         assert self.binding_record
         if not self.drupal_id:
             return False
-        dtimezone = self.backend_record.default_timezone
         sync = self.binding_record.sync_date
         if not sync:
             return True
@@ -99,10 +97,8 @@ class DrupalBaseExporter(ExportSynchronizer):
             return False
         fmt = DEFAULT_SERVER_DATETIME_FORMAT
         sync_date = datetime.strptime(sync, fmt)
-        drupal_date = datetime.fromtimestamp(
-            float(record['changed']), timezone(dtimezone)
-        )
-        return sync_date < drupal_date.replace(tzinfo=None)
+        drupal_date = datetime.fromtimestamp(float(record['changed']))
+        return sync_date < drupal_date
 
     def _get_openerp_data(self):
         """ Return the raw OpenERP data for ``self.binding_id`` """

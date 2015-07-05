@@ -67,6 +67,7 @@ Data Model
     'security/ir.model.access.csv',
     'views/drupal_model.xml',
     'views/product_view.xml',
+    'views/partner_view.xml',
     'menu/drupal_menu.xml',
     'data/drupal_commerce_data.xml',
  ],
