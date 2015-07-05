@@ -20,9 +20,10 @@
 
 from . import event
 from . import unit
+from . import consumer
+from . import related_action
 
 from . import backend
 from . import drupal_model
 from . import connector
-from . import related_action
-from . import consumer
+from . import product

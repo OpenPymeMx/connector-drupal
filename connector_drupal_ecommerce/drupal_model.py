@@ -55,6 +55,16 @@ class DrupalBackend(orm.Model):
             timezones.append((tz, tz))
         return timezones
 
+    def _get_stock_field_id(self, cr, uid, context=None):
+        """ Set default stock field to virtual available """
+        field_ids = self.pool.get('ir.model.fields').search(
+            cr, uid,
+            [('model', '=', 'product.product'),
+             ('name', '=', 'virtual_available')],
+            context=context
+        )
+        return field_ids[0]
+
     _columns = {
         'version': fields.selection(
             _select_versions, string='Version', required=True
@@ -89,11 +99,28 @@ class DrupalBackend(orm.Model):
             string='Default Drupal Timezone',
             help='If no default timezone is selected, the records '
             'could be not correctly sync with Drupal'
-        )
+        ),
+        'warehouse_id': fields.many2one(
+            'stock.warehouse', 'Warehouse', required=True,
+            help='Warehouse used to compute the stock quantities.'
+        ),
+        'product_stock_field_id': fields.many2one(
+            'ir.model.fields', string='Stock Field',
+            domain="[('model', 'in', ['product.product', 'product.template']),"
+                   " ('ttype', '=', 'float')]",
+            help="Choose the field of the product which will be used for "
+                 "stock inventory updates.\nIf empty, Quantity Available "
+                 "is used."
+        ),
+        'product_binding_ids': fields.one2many(
+            'drupal.product.product', 'backend_id', string='Drupal Products',
+            readonly=True
+        ),
     }
 
     _defaults = {
-        'timeout': 1
+        'timeout': 1,
+        'product_stock_field_id': _get_stock_field_id,
     }
 
     def test_backend(self, cr, uid, ids, context=None):
@@ -155,42 +182,24 @@ class DrupalBackend(orm.Model):
                 )
         return
 
-    def export_products(self, cr, uid, ids, context=None):
-        """
-        Create a job for sync product with Drupal Commerce
-        TODO: Currently only supports export products from OpenERP to Drupal
-        """
-        context = context or {}
-        product_obj = self.pool.get('product.product')
-        session = ConnectorSession(cr, uid, context=context)
+    def _domain_for_update_product_stock_qty(self, cr, uid, ids, context=None):
+        return [
+            ('backend_id', 'in', ids),
+            ('type', '!=', 'service'),
+            ('no_stock_sync', '=', False),
+        ]
 
-        for backend in self.browse(cr, uid, ids, context=context):
-            for domain in backend.domains:
-                if not domain.object.model == 'product.product':
-                    continue
-                domain = eval("[%s]" % domain.domain)
-
-        record_ids = product_obj.search(
-            cr, SUPERUSER_ID, domain, context=context
+    def update_product_stock_qty(self, cr, uid, ids, context=None):
+        if not hasattr(ids, '__iter__'):
+            ids = [ids]
+        drupal_product_obj = self.pool.get('drupal.product.product')
+        domain = self._domain_for_update_product_stock_qty(
+            cr, uid, ids, context=context
         )
-
-        for record in product_obj.browse(
-            cr, SUPERUSER_ID, record_ids, context=context
-        ):
-            # If there is no binding object created yet then we create
-            if not len(record.drupal_bind_ids):
-                vals = {
-                    'openerp_id': record.id,
-                    'backend_id': backend.id
-                }
-                product_obj.write(
-                    cr, uid, record.id,
-                    {'drupal_bind_ids': [(0, 0, vals)]},
-                    context=context
-                )
-                record.refresh()
-            for binding in record.drupal_bind_ids:
-                export_record.delay(
-                    session, binding._model._name, binding.id
-                )
-        return
+        product_ids = drupal_product_obj.search(
+            cr, uid, domain, context=context
+        )
+        drupal_product_obj.recompute_drupal_qty(
+            cr, uid, product_ids, context=context
+        )
+        return True

@@ -59,12 +59,16 @@ Data Model
  'depends': [
     'connector',
     'connector_base_product',
+    'sale_stock',
+    'product',
  ],
  'data': [
     'security/security.xml',
     'security/ir.model.access.csv',
     'views/drupal_model.xml',
+    'views/product_view.xml',
     'menu/drupal_menu.xml',
+    'data/drupal_commerce_data.xml',
  ],
  'installable': True,
  }
