@@ -41,6 +41,7 @@ are pushed to Drupal.
     'data': [
         'wizard/export_pricelist.xml',
         'views/pricelist_view.xml',
+        'security/ir.model.access.csv',
     ],
     'installable': True,
     'application': False,
