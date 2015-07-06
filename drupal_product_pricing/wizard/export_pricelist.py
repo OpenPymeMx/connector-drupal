@@ -44,29 +44,30 @@ class export_pricelist(orm.TransientModel):
         TODO: Refactor for use a common wizard
         """
         context = context or {}
-        pricelist_obj = self.pool.get('product.pricelist')
+        bind_obj = self.pool.get('drupal.product.pricelist')
+        existing_ids = []
 
-        session = ConnectorSession(cr, uid, context=context)
         record_ids = context['active_ids']
         backend = self.browse(cr, uid, ids, context=context)[0].backend_id
 
-        for record in pricelist_obj.browse(
-            cr, uid, record_ids, context=context
-        ):
-            # If there is no binding object created yet then we create
-            if not len(record.drupal_bind_ids):
-                vals = {
-                    'openerp_id': record.id,
-                    'backend_id': backend.id
-                }
-                pricelist_obj.write(
-                    cr, uid, record.id,
-                    {'drupal_bind_ids': [(0, 0, vals)]},
+        # Search the `drupal model for the records that already exist
+        binding_ids = bind_obj.search(
+            cr, uid,
+            [('openerp_id', 'in', record_ids),
+             ('backend_id', '=', backend.id)],
+            context=context
+        )
+
+        for binding in bind_obj.browse(cr, uid, binding_ids, context=context):
+            existing_ids.append(binding.openerp_id.id)
+
+        # Create missing binding records,
+        # the consumer will launch the actual export
+        for record_id in record_ids:
+            if record_id not in existing_ids:
+                bind_obj.create(
+                    cr, uid,
+                    {'openerp_id': record_id, 'backend_id': backend.id},
                     context=context
-                )
-                record.refresh()
-            for binding in record.drupal_bind_ids:
-                export_record.delay(
-                    session, binding._model._name, binding.id
                 )
         return

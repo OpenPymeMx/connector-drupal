@@ -18,9 +18,22 @@
 #
 ##############################################################################
 
-from . import connector
-from . import wizard
-from . import pricelist
-from . import unit
-from . import consumer
-from . import drupal_model
+from openerp.addons.connector.event import (
+    on_record_create
+)
+from openerp.addons.connector_drupal_ecommerce.unit.export_synchronizer import (
+    export_record
+)
+
+
+@on_record_create(model_names='drupal.product.pricelist')
+def export_pricelist(session, model_name, record_id, vals):
+    """ Delay a job which export a binding record.
+
+    (A binding record being a ``drupal.res.partner``,
+    ``drupal.product.product``, ...)
+    """
+    if session.context.get('connector_no_export'):
+        return
+    fields = vals.keys()
+    export_record.delay(session, model_name, record_id, fields=fields)
