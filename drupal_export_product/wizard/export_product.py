@@ -23,8 +23,9 @@
 
 from openerp.osv import orm, fields
 
-from openerp.addons.connector.session import ConnectorSession
-from openerp.addons.connector_drupal_ecommerce.unit.export_synchronizer import export_record
+from openerp.addons.connector_drupal_ecommerce.unit.export_synchronizer import (
+    export_record
+)
 
 
 class export_product(orm.TransientModel):
@@ -42,31 +43,39 @@ class export_product(orm.TransientModel):
     def export_to_drupal(self, cr, uid, ids, context=None):
         """
         Export selected products to Drupal
+
+        It groups the products by backend to discover what products
+        already have been imported and what products needs to export
+        first time.
+
+        For products exported by first time this wizard creates the
+        corresponding drupal.product.no de object
         """
         context = context or {}
-        product_obj = self.pool.get('product.product')
+        bind_obj = self.pool.get('drupal.product.node')
+        existing_ids = []
 
-        session = ConnectorSession(cr, uid, context=context)
         record_ids = context['active_ids']
         backend = self.browse(cr, uid, ids, context=context)[0].backend_id
 
-        for record in product_obj.browse(
-            cr, uid, record_ids, context=context
-        ):
-            # If there is no binding object created yet then we create
-            if not len(record.drupal_node_bind_ids):
-                vals = {
-                    'openerp_id': record.id,
-                    'backend_id': backend.id
-                }
-                product_obj.write(
-                    cr, uid, record.id,
-                    {'drupal_node_bind_ids': [(0, 0, vals)]},
+        # Search the `drupal model for the records that already exist
+        binding_ids = bind_obj.search(
+            cr, uid,
+            [('openerp_id', 'in', record_ids),
+             ('backend_id', '=', backend.id)],
+            context=context
+        )
+
+        for binding in bind_obj.browse(cr, uid, binding_ids, context=context):
+            existing_ids.append(binding.openerp_id.id)
+
+        # Create missing binding records,
+        # the consumer will launch the actual export
+        for record_id in record_ids:
+            if record_id not in existing_ids:
+                bind_obj.create(
+                    cr, uid,
+                    {'openerp_id': record_id, 'backend_id': backend.id},
                     context=context
-                )
-                record.refresh()
-            for binding in record.drupal_node_bind_ids:
-                export_record.delay(
-                    session, binding._model._name, binding.id
                 )
         return
