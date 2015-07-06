@@ -1,7 +1,7 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_drupal_product_category,drupal_product_category connector manager,model_drupal_product_category,connector.group_connector_manager,1,1,1,1
-access_drupal_product_product,drupal_product_product connector manager,model_drupal_product_product,connector.group_connector_manager,1,1,1,1
-access_drupal_product_product_user,drupal_product_product user,model_drupal_product_product,base.group_sale_salesman,1,0,0,0
-access_drupal_product_product_sale_manager,drupal_product_product sale manager,model_drupal_product_product,base.group_sale_manager,1,1,1,1
+access_drupal_product_node,drupal_product_node connector manager,model_drupal_product_node,connector.group_connector_manager,1,1,1,1
+access_drupal_product_node_user,drupal_product_node user,model_drupal_product_node,base.group_sale_salesman,1,0,0,0
+access_drupal_product_product_sale_manager,drupal_product_node sale manager,model_drupal_product_node,base.group_sale_manager,1,1,1,1
 access_product_category_sale_manager,drupal_product.category salemanager,model_drupal_product_category,base.group_sale_manager,1,1,1,1
 access_product_category_user,drupal_product.category.user,model_drupal_product_category,base.group_user,1,0,0,0
