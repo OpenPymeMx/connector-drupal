@@ -89,7 +89,11 @@ class ProductNodeExport(DrupalExporter):
         """ Export dependencies for the record """
         self._export_dependency(
             self.binding_record.openerp_id.categ_id,
-            'drupal.product.category', exporter_class=ProductCategoryExport
+            'drupal.product.category', exporter_class=ProductCategoryExport,
+            # Extra vals needed to create the drupal.product.category object
+            # TODO: Change when there is a better way to relate
+            # Drupal voacabularies
+            binding_extra_vals={'vid': 1}
         )
 
     def _validate_create_data(self, data):
@@ -108,16 +112,22 @@ class ProductNodeExport(DrupalExporter):
         """ After export we need to create the drupal.product.product
         object for being able to export stock levels
         TODO: Refactor as a dependency and stop using commerce_kickstart
+              so we could create drupal product first and send as a
+              related field to product_display nodes instead of being
+              forced to always send product & display nodes at same time
         """
-        record = self.backend_adapter.read(self.drupal_id)
-        d_product_obj = self.session.pool.get('drupal.product.product')
-        d_product_obj.create(
-            self.session.cr, self.session.uid,
-            {'openerp_id': self.binding_record.openerp_id.id,
-             'drupal_id': record['field_product']['und'][0]['product_id'],
-             'backend_id': self.binding_record.backend_id.id},
-            context=self.session.context
-        )
+        if len(self.binding_record.drupal_bind_ids) < 1:
+            # The drupal.product.product only needs to be created first time
+            # product is exported to Drupal
+            record = self.backend_adapter.read(self.drupal_id)
+            d_product_obj = self.session.pool.get('drupal.product.product')
+            d_product_obj.create(
+                self.session.cr, self.session.uid,
+                {'openerp_id': self.binding_record.openerp_id.id,
+                 'drupal_id': record['field_product']['und'][0]['product_id'],
+                 'backend_id': self.binding_record.backend_id.id},
+                context=self.session.context
+            )
         return
 
 
@@ -210,7 +220,7 @@ class drupal_product_category(orm.Model):
         'updated_at': fields.datetime(
             'Updated At (on Drupal)', readonly=True
         ),
-        # TODO:Find a way to let the user select the vocabulary to sinc
+        # TODO:Find a way to let the user select the vocabulary to sync
         'vid': fields.integer(
             'Drupal Vocabulary id', required=True, readonly=True
         )

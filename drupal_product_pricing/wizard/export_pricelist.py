@@ -20,11 +20,6 @@
 
 from openerp.osv import orm, fields
 
-from openerp.addons.connector.session import ConnectorSession
-from openerp.addons.connector_drupal_ecommerce.unit.export_synchronizer import (
-    export_record
-)
-
 
 class export_pricelist(orm.TransientModel):
     """
@@ -42,6 +37,8 @@ class export_pricelist(orm.TransientModel):
         """
         Export selected pricelist to Drupal
         TODO: Refactor for use a common wizard
+              the wizard must be able to prevent multiple export of
+              drupal.product.node when creating pricelist
         """
         context = context or {}
         bind_obj = self.pool.get('drupal.product.pricelist')

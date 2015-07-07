@@ -23,10 +23,6 @@
 
 from openerp.osv import orm, fields
 
-from openerp.addons.connector_drupal_ecommerce.unit.export_synchronizer import (
-    export_record
-)
-
 
 class export_product(orm.TransientModel):
     """
@@ -49,7 +45,7 @@ class export_product(orm.TransientModel):
         first time.
 
         For products exported by first time this wizard creates the
-        corresponding drupal.product.no de object
+        corresponding drupal.product.node object
         """
         context = context or {}
         bind_obj = self.pool.get('drupal.product.node')

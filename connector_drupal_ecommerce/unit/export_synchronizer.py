@@ -280,16 +280,19 @@ class DrupalExporter(DrupalBaseExporter):
                 ctx = {'connector_no_export': True}
                 with self.session.change_context(ctx):
                     with self.session.change_user(SUPERUSER_ID):
-                        bind_values = {'backend_id': self.backend_record.id,
-                                       'openerp_id': relation.id}
+                        bind_values = {
+                            'backend_id': self.backend_record.id,
+                            'openerp_id': relation.id
+                        }
                         if binding_extra_vals:
                             bind_values.update(binding_extra_vals)
                         # If 2 jobs create it at the same time, retry
                         # one later. A unique constraint (backend_id,
                         # openerp_id) should exist on the binding model
                         with self._retry_unique_violation():
-                            binding_id = self.session.create(binding_model,
-                                                             bind_values)
+                            binding_id = self.session.create(
+                                binding_model, bind_values
+                            )
                             # Eager commit to avoid having 2 jobs
                             # exporting at the same time. The constraint
                             # will pop if an other job already created
@@ -299,14 +302,15 @@ class DrupalExporter(DrupalBaseExporter):
                             if not context.get('__test_no_commit'):
                                 self.session.commit()
         else:
-            # If magento_bind_ids does not exist we are typically in a
+            # If drupal_bind_ids does not exist we are typically in a
             # "direct" binding (the binding record is the same record).
             # If wrap is True, relation is already a binding record.
             binding_id = relation.id
 
         if not rel_binder.to_backend(binding_id):
-            exporter = self.get_connector_unit_for_model(exporter_class,
-                                                         binding_model)
+            exporter = self.get_connector_unit_for_model(
+                exporter_class, binding_model
+            )
             exporter.run(binding_id)
 
     def _export_dependencies(self):
@@ -373,6 +377,7 @@ class DrupalExporter(DrupalBaseExporter):
 
         # export the missing linked resources
         self._export_dependencies()
+        self.binding_record.refresh()
 
         # prevent other jobs to export the same record
         # will be released on commit (or rollback)

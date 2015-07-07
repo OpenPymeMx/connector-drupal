@@ -27,9 +27,6 @@ from openerp.osv import orm, fields
 
 from openerp.addons.connector.event import on_record_write
 from openerp.addons.connector.queue.job import job, related_action
-from openerp.addons.connector.unit.mapper import (
-    ExportMapper, mapping
-)
 
 from .backend import drupal
 from .connector import get_environment
