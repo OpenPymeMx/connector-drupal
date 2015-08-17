@@ -23,16 +23,20 @@
 
 
 from openerp.osv import orm, fields
+from openerp.tools.translate import _
 
-from openerp.addons.connector.session import ConnectorSession
 from openerp.addons.connector.exception import InvalidDataError
 from openerp.addons.connector.unit.mapper import (
     ExportMapper, mapping
 )
 
 from openerp.addons.connector_drupal_ecommerce.backend import drupal
-from openerp.addons.connector_drupal_ecommerce.unit.export_synchronizer import DrupalExporter
-from openerp.addons.connector_drupal_ecommerce.unit.backend_adapter import DrupalCRUDAdapter
+from openerp.addons.connector_drupal_ecommerce.unit.export_synchronizer import (
+    DrupalExporter
+)
+from openerp.addons.connector_drupal_ecommerce.unit.backend_adapter import (
+    DrupalCRUDAdapter
+)
 
 
 class product_product(orm.Model):
@@ -90,10 +94,6 @@ class ProductNodeExport(DrupalExporter):
         self._export_dependency(
             self.binding_record.openerp_id.categ_id,
             'drupal.product.category', exporter_class=ProductCategoryExport,
-            # Extra vals needed to create the drupal.product.category object
-            # TODO: Change when there is a better way to relate
-            # Drupal voacabularies
-            binding_extra_vals={'vid': 1}
         )
 
     def _validate_create_data(self, data):
@@ -104,7 +104,7 @@ class ProductNodeExport(DrupalExporter):
         data_product = data['field_product']['und']['form']
         if not data_product['sku']:
             raise InvalidDataError(
-                'The product does not have Code but is mandatory for Drupal'
+                _('The product does not have Code but is mandatory for Drupal')
             )
         return
 
@@ -220,14 +220,11 @@ class drupal_product_category(orm.Model):
         'updated_at': fields.datetime(
             'Updated At (on Drupal)', readonly=True
         ),
-        # TODO:Find a way to let the user select the vocabulary to sync
-        'vid': fields.integer(
-            'Drupal Vocabulary id', required=True, readonly=True
+        'vid': fields.related(
+            'backend_id', 'drupal_vocabulary_id', 'drupal_id',
+            type='integer', relation='drupal.vocabulary',
+            string='Drupal Vocabulary', store=True
         )
-    }
-
-    _defauls = {
-        'vid': 1
     }
 
     _sql_constraints = [
@@ -235,10 +232,42 @@ class drupal_product_category(orm.Model):
          'A taxonomy with same ID on Drupal already exists.'),
     ]
 
+    def _check_main_category(self, cr, uid, ids, context=None):
+        """
+        Check the binded record is not the same mapped with Drupal Vocabulary
+        """
+        context = context or {}
+        record = self.browse(cr, uid, ids, context=context)[0]
+        backend = record.backend_id
+        if record.openerp_id.id == backend.main_product_category_id.id:
+            return True
+        return False
+
+    _constraint = [
+        (_check_main_category,
+         _('You cannot export category mapped to Drupal Vocabulary'),
+         ['vid'])
+    ]
+
 
 @drupal
 class ProductCategoryExport(DrupalExporter):
     _model_name = ['drupal.product.category']
+
+    def _export_dependencies(self):
+        """ Export the parent category for the record"""
+        backend = self.backend_record
+        category = self.binding_record.openerp_id
+
+        # Parent category is mapped to Drupal vocabulary, do not export it
+        is_main = category.parent_id.id == backend.main_product_category_id.id
+        if is_main:
+            return
+
+        self._export_dependency(
+            self.binding_record.openerp_id.parent_id,
+            'drupal.product.category', exporter_class=ProductCategoryExport,
+        )
 
 
 @drupal
@@ -249,6 +278,24 @@ class ProductCategoryExportMapper(ExportMapper):
         ('name', 'name'),
         ('vid', 'vid'),
     ]
+
+    @mapping
+    def parent_category(self, record):
+        """
+        Get parent category in order to export the hierarchy categories
+        created on OpenERP to Drupal
+        """
+        parent_id = None
+        category = record.openerp_id
+        backend = record.backend_id
+
+        # Does the parent category is the category mapped to Vocabulary?
+        is_main = category.parent_id.id == backend.main_product_category_id.id
+
+        if category.parent_id and not is_main:
+            parent_id = category.parent_id.drupal_bind_ids[0].drupal_id
+
+        return {'parent': parent_id}
 
 
 @drupal

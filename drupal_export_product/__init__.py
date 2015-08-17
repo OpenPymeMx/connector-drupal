@@ -19,6 +19,8 @@
 ##############################################################################
 
 from . import product
+from . import vocabulary
+from . import drupal_model
 from . import wizard
 from . import connector
 from . import consumer

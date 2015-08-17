@@ -63,6 +63,7 @@ Data Model
  ],
  'data': [
     'views/product_view.xml',
+    'views/drupal_model_view.xml',
     'wizard/export_product.xml',
     'security/ir.model.access.csv',
  ],
