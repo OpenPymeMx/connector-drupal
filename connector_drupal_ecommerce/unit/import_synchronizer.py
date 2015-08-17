@@ -30,7 +30,6 @@ from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
 from openerp.addons.connector.queue.job import job
 from openerp.addons.connector.unit.synchronizer import ImportSynchronizer
 from openerp.addons.connector.exception import IDMissingInBackend
-from openerp.addons.connector.connector import Environment
 
 from ..connector import get_environment
 
@@ -50,8 +49,8 @@ class DrupalImportSynchronizer(ImportSynchronizer):
         self.drupal_id = None
         self.drupal_record = None
 
-    def _get_magento_data(self):
-        """ Return the raw Drupal data for ``self.magento_id`` """
+    def _get_drupal_data(self):
+        """ Return the raw Drupal data for ``self.drupal_id`` """
         return self.backend_adapter.read(self.drupal_id)
 
     def _before_import(self):
@@ -182,11 +181,11 @@ class DrupalImportSynchronizer(ImportSynchronizer):
 
     def run(self, drupal_id, force=False):
         """ Run the synchronization
-        :param magento_id: identifier of the record on Magento
+        :param drrupal_id: identifier of the record on Drupal
         """
-        self.magento_id = drupal_id
+        self.drupal_id = drupal_id
         try:
-            self.magento_record = self._get_magento_data()
+            self.drupal_record = self._get_drupal_data()
         except IDMissingInBackend:
             return _('Record does no longer exist in Drupal')
 
@@ -212,7 +211,7 @@ class DrupalImportSynchronizer(ImportSynchronizer):
             record = self._create_data(map_record)
             binding_id = self._create(record)
 
-        self.binder.bind(self.magento_id, binding_id)
+        self.binder.bind(self.drupal_id, binding_id)
 
         self._after_import(binding_id)
 
@@ -234,6 +233,18 @@ class BatchImportSynchronizer(ImportSynchronizer):
         Method to implement in sub-classes.
         """
         raise NotImplementedError
+
+
+class DirectBatchImport(BatchImportSynchronizer):
+    """ Import the records directly, without delaying the jobs. """
+    _model_name = None
+
+    def _import_record(self, record_id):
+        """ Import the record directly """
+        import_record(
+            self.session, self.model._name, self.backend_record.id,
+            record_id
+        )
 
 
 @job

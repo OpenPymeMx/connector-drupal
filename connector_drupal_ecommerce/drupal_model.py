@@ -152,36 +152,6 @@ class DrupalBackend(orm.Model):
                 _('Everything seems correct')
             )
 
-    def sync_product_categories(self, cr, uid, ids, context=None):
-        """
-        Create a job for sync product categories with Drupal Commerce
-        TODO: Currently only supports export categories from OpenERP to Drupal
-        """
-        context = context or {}
-        product_category = self.pool.get('product.category')
-        session = ConnectorSession(cr, uid, context=context)
-        field_list = ['name', 'parent_id', 'sequence', 'vid']
-
-        for backend in self.browse(cr, uid, ids, context=context):
-            for domain in backend.domains:
-                if not domain.object.model == 'product.category':
-                    continue
-                domain = eval("[%s]" % domain.domain)
-
-        record_ids = product_category.search(
-            cr, SUPERUSER_ID, domain, context=context
-        )
-
-        for record in product_category.browse(
-            cr, SUPERUSER_ID, record_ids, context=context
-        ):
-            for binding in record.drupal_bind_ids:
-                export_record.delay(
-                    session, binding._model._name, binding.id,
-                    fields=field_list
-                )
-        return
-
     def _domain_for_update_product_stock_qty(self, cr, uid, ids, context=None):
         return [
             ('backend_id', 'in', ids),

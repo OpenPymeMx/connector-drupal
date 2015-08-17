@@ -146,3 +146,7 @@ class DrupalCRUDAdapter(CRUDAdapter):
     def write(self, id, data):
         """ Update records on the external system """
         return self._call('/'.join([self._drupal_model, id]), data, 'put')
+
+    def search(self, filters=None):
+        """ Get a list of records from a given model """
+        return self._call(self._drupal_model, filters, 'get')
