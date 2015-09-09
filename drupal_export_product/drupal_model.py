@@ -53,10 +53,10 @@ class drupal_backend(orm.Model):
         """ Get default product category for current backend """
         categ_ids = self.pool.get('product.category').search(
             cr, uid,
-            [('parent_id', '=', '')],
+            [('parent_id', '=', False)],
             context=context
         )
-        return categ_ids[0]
+        return categ_ids[0] or False
 
     _defaults = {
         'main_product_category_id': _get_default_category
