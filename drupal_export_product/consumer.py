@@ -33,16 +33,19 @@ def delay_export_all_bindings(session, model_name, record_id, vals):
     In this case, it is called on records of normal models and will delay
     the export for all the bindings.
     """
+    fields = ['vid', 'name', 'parent_id']
     if session.context.get('connector_no_export'):
+        return
+    # Only export the object if changed one of the mapped fields
+    if not any((True for x in vals.keys() if x in fields)):
         return
     model = session.pool.get(model_name)
     record = model.browse(
         session.cr, session.uid, record_id, context=session.context
     )
-    fields = vals.keys()
     for binding in record.drupal_bind_ids:
         export_record.delay(
-            session, binding._model._name, binding.id, fields=fields
+            session, binding._model._name, binding.id
         )
 
 
@@ -53,8 +56,7 @@ def export_product_node(session, model_name, record_id, vals):
     """
     if session.context.get('connector_no_export'):
         return
-    fields = vals.keys()
-    export_record.delay(session, model_name, record_id, fields=fields)
+    export_record.delay(session, model_name, record_id)
 
 
 @on_record_write(model_names='product.product')
