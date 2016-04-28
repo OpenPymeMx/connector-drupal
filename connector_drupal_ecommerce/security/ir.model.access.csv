@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_drupal_backend,drupal_backend connector manager,model_drupal_backend,connector.group_connector_manager,1,1,1,1
+access_drupal_binding,drupal_binding connector manager,model_drupal_binding,connector.group_connector_manager,1,1,1,1
+access_drupal_product_product,drupal_product_product connector manager,model_drupal_product_product,connector.group_connector_manager,1,1,1,1
+access_drupal_backend_user,drupal_backend user,model_drupal_backend,base.group_sale_salesman,1,0,0,0
+access_drupal_backend_sale_manager,drupal_backend manager,model_drupal_backend,base.group_sale_manager,1,0,0,0
+read_drupal_product_product,drupal_product_product_connector_user,model_drupal_product_product,base.group_sale_salesman,1,0,0,0

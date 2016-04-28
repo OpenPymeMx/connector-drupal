@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+    
+        <record id="view_drupal_product_pricelist_form" model="ir.ui.view">
+            <field name="name">drupal.product.pricelist.form</field>
+            <field name="model">drupal.product.pricelist</field>
+            <field name="arch" type="xml">
+                <form string="Drupal Pricelist" version="7.0">
+                    <header>
+                        <button name="update_all_prices"
+                            type="object"
+                            class="oe_highlight"
+                            string="Update Prices"/>
+                    </header>
+                    <group>
+                        <field name="backend_id"/>
+                        <field name="drupal_id"/>
+                        <field name="created_at" readonly="1"/>
+                        <field name="updated_at" readonly="1"/>
+                    </group>
+                </form>
+            </field>
+        </record>
+        
+        <record id="view_drupal_product_pricelist_tree" model="ir.ui.view">
+            <field name="name">drupal.product.pricelist.tree</field>
+            <field name="model">drupal.product.pricelist</field>
+            <field name="arch" type="xml">
+                <tree string="Drupal Pricelist">
+                    <field name="backend_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_product_pricelist_form_view" model="ir.ui.view">
+            <field name="name">product.pricelist.form.drupal</field>
+            <field name="model">product.pricelist</field>
+            <field name="inherit_id" ref="product.product_pricelist_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='version_id']" position="after">
+                    <newline/>
+                    <group name="drupal" string="Drupal Bindings">
+                        <field name="drupal_bind_ids" nolabel="1">
+                            <tree>
+                                <field name="backend_id"/>
+                            </tree>
+                        </field>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+        
+    </data>
+</openerp>

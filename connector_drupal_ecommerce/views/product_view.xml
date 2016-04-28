@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="product_normal_form_view" model="ir.ui.view">
+            <field name="name">product.product.form</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="connector_base_product.product_normal_form_view"/>
+            <field name="arch" type="xml">
+                <page name="connector" position="attributes">
+                    <attribute name="invisible">0</attribute>
+                </page>
+                <page name="connector" position="inside">
+                    <group string="Drupal Bindings">
+                        <field name="drupal_bind_ids" nolabel="1">
+                            <tree>
+                                <field name="backend_id"/>
+                            </tree>
+                        </field>
+                    </group>
+                </page>
+            </field>
+        </record>
+
+        <record id="view_drupal_product_form" model="ir.ui.view">
+            <field name="name">drupal.product.product.form</field>
+            <field name="model">drupal.product.product</field>
+            <field name="arch" type="xml">
+                <form string="Drupal Product" version="7.0">
+                    <group>
+                        <field name="backend_id"/>
+                        <field name="drupal_id"/>
+                        <field name="created_at" readonly="1"/>
+                        <field name="updated_at" readonly="1"/>
+                    </group>
+                    <group string="Inventory Options">
+                        <field name="no_stock_sync"/>
+                        <div class="oe_inline">
+                            <label for="drupal_qty" class="oe_inline" />
+                            <field name="drupal_qty" readonly="1" class="oe_inline"
+                                nolabel="1"/>
+                            <button name="recompute_drupal_qty" string="(recompute)"
+                                class="oe_link oe_inline" type="object"/>
+                        </div>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_drupal_product_tree" model="ir.ui.view">
+            <field name="name">drupal.product.product.tree</field>
+            <field name="model">drupal.product.product</field>
+            <field name="arch" type="xml">
+                <tree string="Drupal Product" version="7.0">
+                    <field name="backend_id"/>
+                </tree>
+            </field>
+        </record>
+    
+    </data>
+</openerp>
