@@ -150,12 +150,15 @@ class ProductNodeMapper(ExportMapper):
         field_product['und']['form'] = {
             'commerce_price': {
                 'und': [{
-                    'amount': product.list_price * 100,
+                    'amount': product.list_price,
                     'currency_code': product.company_id.currency_id.name,
                 }]
             },
             'title_field': product.name,
-            'sku': product.code
+            'sku': product.code,
+            'field_images': [{
+                'fid': 0
+            }],
         }
 
         categories = []
