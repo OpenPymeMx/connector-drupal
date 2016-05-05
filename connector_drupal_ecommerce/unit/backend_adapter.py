@@ -30,6 +30,10 @@ from openerp.addons.connector.unit.backend_adapter import CRUDAdapter
 _logger = logging.getLogger(__name__)
 
 
+class WrongContent(requests.exceptions.RequestException):
+    """The response has the wrong content."""
+
+
 class DrupalServices(object):
     """Drupal services class.
 
@@ -85,7 +89,8 @@ class DrupalServices(object):
         try:
             response = response.json()
         except ValueError:
-            raise Exception(response)
+            _logger.error(response.text)
+            raise WrongContent(response=response.text)
         return response
 
     def user_login(self):
