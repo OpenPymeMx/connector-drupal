@@ -357,11 +357,7 @@ class ProductPriceitemMapper(ExportMapper):
         context = {'pricelist': pricelist.id}
         price = record._get_price(context=context)
         return {
-            # TODO: Drupal is using integer for store price amounts
-            # the reason is documented here:
-            # http://pixeljets.com/blog/storing-monetary-amounts-db-use-decimals-not-floats
-            # we need to find a proper solution instead of the hardcoded *100
-            'price_amount': price * 100,
+            'price_amount': price,
             'currency_code': pricelist.currency_id.name
         }
 
