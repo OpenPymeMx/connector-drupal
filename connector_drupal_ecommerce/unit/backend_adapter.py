@@ -84,7 +84,9 @@ class DrupalServices(object):
         try:
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            raise Exception(e.message)
+            raise Exception(
+                e.message + ' ' + response.text
+            )
         # Decode json response or raise error
         try:
             response = response.json()
