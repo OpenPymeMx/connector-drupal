@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+    
+        <record id="view_drupal_file_form" model="ir.ui.view">
+            <field name="name">drupal.file.form</field>
+            <field name="model">drupal.file</field>
+            <field name="arch" type="xml">
+                <form string="Drupal File">
+                    <group>
+                        <field name="backend_id"/>
+                        <field name="drupal_id"/>
+                        <field name="created_at" readonly="1"/>
+                        <field name="updated_at" readonly="1"/>
+                    </group>
+                </form>
+            </field>
+        </record>
+        
+        <record id="view_drupal_file_tree" model="ir.ui.view">
+            <field name="name">drupal.file.tree</field>
+            <field name="model">drupal.file</field>
+            <field name="arch" type="xml">
+                <tree string="Drupal File" version="7.0">
+                    <field name="backend_id" />
+                </tree>
+            </field>
+        </record>
+    
+        <record id="view_attachment_form" model="ir.ui.view">
+            <field name="name">ir.attachment.form</field>
+            <field name="model">ir.attachment</field>
+            <field name="inherit_id" ref="base.view_attachment_form" />
+            <field name="arch" type="xml">
+                <group name="description_group" position="after">
+                    <group string="Drupal File Bindings">
+                        <field name="drupal_file_bind_ids" nolabel="1">
+                            <tree>
+                                <field name="backend_id"/>
+                            </tree>
+                        </field>
+                    </group>
+                </group>
+            </field>
+        </record>
+        
+    </data>
+</openerp>

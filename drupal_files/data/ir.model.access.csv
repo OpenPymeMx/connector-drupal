@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_drupal_file,drupal_file connector manager,model_drupal_file,connector.group_connector_manager,1,1,1,1
+access_drupal_file_user,drupal_file user,model_drupal_file,base.group_user,1,0,0,0
