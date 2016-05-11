@@ -21,7 +21,7 @@ class ir_attachment(orm.Model):
     _inherit = 'ir.attachment'
 
     _columns = {
-        'drupal_file_bind_ids': fields.one2many(
+        'drupal_bind_ids': fields.one2many(
             'drupal.file', 'openerp_id',
             string="Drupal Node Bindings"
         ),
