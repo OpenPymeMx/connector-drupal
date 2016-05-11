@@ -12,6 +12,9 @@ from openerp.addons.connector_drupal_ecommerce.unit.export_synchronizer import (
 from openerp.addons.connector_drupal_ecommerce.unit.backend_adapter import (
     DrupalCRUDAdapter
 )
+from openerp.addons.connector_drupal_ecommerce.unit.binder import (
+    DrupalModelBinder
+)
 
 
 class ir_attachment(orm.Model):
@@ -91,3 +94,8 @@ class FileAdapter(DrupalCRUDAdapter):
         """ Create a record on the external system """
         result = self._call(self._drupal_model, data, 'post')
         return result['fid']
+
+
+@drupal
+class FileBinder(DrupalModelBinder):
+    _model_name = 'drupal.file'
