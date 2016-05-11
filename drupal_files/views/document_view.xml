@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-    
+
         <record id="view_drupal_file_form" model="ir.ui.view">
             <field name="name">drupal.file.form</field>
             <field name="model">drupal.file</field>
@@ -16,7 +16,7 @@
                 </form>
             </field>
         </record>
-        
+
         <record id="view_drupal_file_tree" model="ir.ui.view">
             <field name="name">drupal.file.tree</field>
             <field name="model">drupal.file</field>
@@ -26,7 +26,7 @@
                 </tree>
             </field>
         </record>
-    
+
         <record id="view_attachment_form" model="ir.ui.view">
             <field name="name">ir.attachment.form</field>
             <field name="model">ir.attachment</field>
@@ -34,7 +34,7 @@
             <field name="arch" type="xml">
                 <group name="description_group" position="after">
                     <group string="Drupal File Bindings">
-                        <field name="drupal_file_bind_ids" nolabel="1">
+                        <field name="drupal_bind_ids" nolabel="1">
                             <tree>
                                 <field name="backend_id"/>
                             </tree>
@@ -43,6 +43,6 @@
                 </group>
             </field>
         </record>
-        
+
     </data>
 </openerp>
