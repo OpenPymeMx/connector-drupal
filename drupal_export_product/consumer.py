@@ -18,6 +18,8 @@
 #
 ##############################################################################
 
+import openerp.addons.connector_drupal_ecommerce.consumer as drupalconnect
+
 from openerp.addons.connector.event import (
     on_record_create, on_record_write, on_record_unlink
 )
@@ -34,19 +36,12 @@ def delay_export_all_bindings(session, model_name, record_id, vals):
     the export for all the bindings.
     """
     fields = ['vid', 'name', 'parent_id']
-    if session.context.get('connector_no_export'):
-        return
     # Only export the object if changed one of the mapped fields
     if not any((True for x in vals.keys() if x in fields)):
         return
-    model = session.pool.get(model_name)
-    record = model.browse(
-        session.cr, session.uid, record_id, context=session.context
+    drupalconnect.delay_export_all_bindings(
+        session, model_name, record_id, vals
     )
-    for binding in record.drupal_bind_ids:
-        export_record.delay(
-            session, binding._model._name, binding.id
-        )
 
 
 @on_record_create(model_names='drupal.product.node')

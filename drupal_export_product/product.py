@@ -311,3 +311,8 @@ class ProductCategoryAdapter(DrupalCRUDAdapter):
         result = super(ProductCategoryAdapter, self).create(data)
         # for some reason result is a list. so we retrieve the first item.
         return result['tid']
+
+    def write(self, id, data):
+        """ Override method to add id for record into data """
+        data['tid']=id
+        return DrupalCRUDAdapter.write(self, id, data)
