@@ -40,7 +40,7 @@ def delay_export_all_bindings(session, model_name, record_id, vals):
     if not any((True for x in vals.keys() if x in fields)):
         return
     drupalconnect.delay_export_all_bindings(
-        session, model_name, record_id, vals
+        session, model_name, record_id, dict.fromkeys(fields, 0)
     )
 
 
