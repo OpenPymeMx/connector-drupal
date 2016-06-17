@@ -2,3 +2,4 @@
 
 from . import connector
 from . import models
+from . import consumer
