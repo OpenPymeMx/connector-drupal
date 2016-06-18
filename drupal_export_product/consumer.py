@@ -61,14 +61,6 @@ def delay_export_node_bindings(session, model_name, record_id, vals):
     In this case, it is called on records of normal models and will delay
     the export for all the bindings.
     """
-    if session.context.get('connector_no_export'):
-        return
-    model = session.pool.get(model_name)
-    record = model.browse(
-        session.cr, session.uid, record_id, context=session.context
+    drupalconnect.delay_export_all_bindings(
+        session, model_name, record_id,
     )
-    fields = vals.keys()
-    for binding in record.drupal_node_bind_ids:
-        export_record.delay(
-            session, binding._model._name, binding.id, fields=fields
-        )
