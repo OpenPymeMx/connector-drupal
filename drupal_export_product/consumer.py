@@ -44,7 +44,7 @@ def delay_export_node_bindings(session, model_name, record_id, vals):
     the export for all the bindings.
     """
     drupalconnect.delay_export_all_bindings(
-        session, model_name, record_id,
+        session, model_name, record_id, vals
     )
 
 @on_record_unlink(model_names=['drupal.product.node', 'drupal.product.category'])
