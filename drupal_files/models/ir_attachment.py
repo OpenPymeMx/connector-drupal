@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import logging
+
 from openerp.osv import fields, orm
 
 from openerp.addons.connector.unit.mapper import (
@@ -15,6 +17,12 @@ from openerp.addons.connector_drupal_ecommerce.unit.backend_adapter import (
 from openerp.addons.connector_drupal_ecommerce.unit.binder import (
     DrupalModelBinder
 )
+from openerp.addons.connector_drupal_ecommerce.unit.delete_synchronizer import (
+    DrupalDeleteSynchronizer
+)
+
+
+_logger  = logging.getLogger(__name__)
 
 
 class ir_attachment(orm.Model):
@@ -86,6 +94,12 @@ class FileMapper(ExportMapper):
 
 
 @drupal
+class FileBinder(DrupalModelBinder):
+    _model_name = 'drupal.file'
+
+
+
+@drupal
 class FileAdapter(DrupalCRUDAdapter):
     _model_name = 'drupal.file'
     _drupal_model = 'file'
@@ -95,7 +109,12 @@ class FileAdapter(DrupalCRUDAdapter):
         result = self._call(self._drupal_model, data, 'post')
         return result['fid']
 
+    def write(self, id, data):
+        _logger.info('Drupal does not support update files, skipping')
+        return
+
 
 @drupal
-class FileBinder(DrupalModelBinder):
+class FileDeleter(DrupalDeleteSynchronizer):
     _model_name = 'drupal.file'
+    _drupal_model = 'file'
