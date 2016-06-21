@@ -12,6 +12,9 @@ from openerp.addons.connector_drupal_ecommerce.backend import drupal
 from openerp.addons.connector_drupal_ecommerce.unit.export_synchronizer import (
     DrupalExporter
 )
+from openerp.addons.connector_drupal_ecommerce.unit.delete_synchronizer import (
+    DrupalDeleteSynchronizer
+)
 from openerp.addons.connector_drupal_ecommerce.unit.backend_adapter import (
     DrupalCRUDAdapter
 )
@@ -294,3 +297,9 @@ class ProductCategoryAdapter(DrupalCRUDAdapter):
         """ Override method to add id for record into data """
         data['tid']=id
         return DrupalCRUDAdapter.write(self, id, data)
+
+
+@drupal
+class ProductCategoryDeleter(DrupalDeleteSynchronizer):
+    _model_name = 'drupal.product.category'
+    _drupal_model = 'taxonomy_term'

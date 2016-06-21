@@ -154,7 +154,7 @@ class DrupalCRUDAdapter(CRUDAdapter):
         """ Update records on the external system """
         return self._call('/'.join([self._drupal_model, id]), data, 'put')
 
-    def delete(self, id, data):
+    def delete(self, id):
         return self._call('/'.join([self._drupal_model, id]), method='delete')
 
     def search(self, filters=None):
