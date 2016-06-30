@@ -75,6 +75,15 @@ class drupal_file(orm.Model):
 class FileExport(DrupalExporter):
     _model_name = ['drupal.file']
 
+    def _has_to_skip(self):
+        """
+        Return True to skip export record when updating the attachment
+        object because Drupal does not support update files
+        """
+        if self.drupal_id:
+            return True
+        return False
+
 
 @drupal
 class FileMapper(ExportMapper):
