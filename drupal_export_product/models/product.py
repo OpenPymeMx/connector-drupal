@@ -166,6 +166,12 @@ class ProductNodeAdapter(DrupalCRUDAdapter):
         return result['nid']
 
 
+@drupal
+class ProductNodeDeleter(DrupalDeleteSynchronizer):
+    _model_name = 'drupal.product.node'
+    _drupal_model = 'node'
+
+
 class product_category(orm.Model):
     _inherit = 'product.category'
 

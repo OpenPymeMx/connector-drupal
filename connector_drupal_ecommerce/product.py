@@ -32,6 +32,7 @@ from .backend import drupal
 from .connector import get_environment
 from .related_action import unwrap_binding
 from .unit.export_synchronizer import DrupalExporter
+from .unit.delete_synchronizer import DrupalDeleteSynchronizer
 from .unit.backend_adapter import DrupalCRUDAdapter
 
 
@@ -232,6 +233,13 @@ class ProductProductAdapter(DrupalCRUDAdapter):
     def update_inventory(self, id, data):
         """ Write updated inventory on Drupal product """
         return self.write(id, data)
+
+
+@drupal
+class ProductProductDeleter(DrupalDeleteSynchronizer):
+    _model_name = 'drupal.product.product'
+    _drupal_model = 'product'
+
 
 # fields which should not trigger an export of the products
 # but an export of their inventory

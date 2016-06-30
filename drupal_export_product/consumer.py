@@ -47,6 +47,8 @@ def delay_export_node_bindings(session, model_name, record_id, vals):
         session, model_name, record_id, vals
     )
 
-@on_record_unlink(model_names=['drupal.product.node', 'drupal.product.category'])
+@on_record_unlink(model_names=['drupal.product.node',
+                               'drupal.product.product',
+                               'drupal.product.category'])
 def delay_unlink(session, model_name, record_id):
     drupalconnect.delay_unlink(session, model_name, record_id)
