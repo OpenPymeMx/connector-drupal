@@ -137,9 +137,9 @@ class ProductNodeMapper(ExportMapper):
             },
             'title_field': product.name,
             'sku': product.code,
-            'field_images': [{
-                'fid': 0
-            }],
+            # commerce_stock is a required field, we send a value for now
+            # and updated later after export.
+            'commerce_stock': {'und': [{'value': 0}]},
         }
 
         categories = []

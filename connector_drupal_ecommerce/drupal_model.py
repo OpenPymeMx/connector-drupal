@@ -175,3 +175,18 @@ class DrupalBackend(orm.Model):
             cr, uid, product_ids, context=context
         )
         return True
+
+    def _drupal_backend(self, cr, uid, callback, domain=None, context=None):
+        if domain is None:
+            domain = []
+        ids = self.search(cr, uid, domain, context=context)
+        if ids:
+            callback(cr, uid, ids, context=context)
+
+    def _scheduler_update_product_stock_qty(
+        self, cr, uid, domain=None, context=None
+    ):
+        self._drupal_backend(
+            cr, uid, self.update_product_stock_qty, domain=domain,
+            context=context
+        )
