@@ -4,6 +4,7 @@ import logging
 
 from openerp.osv import fields, orm
 
+from openerp.addons.connector.session import ConnectorSession
 from openerp.addons.connector.unit.mapper import (
     ExportMapper, mapping
 )
@@ -18,7 +19,7 @@ from openerp.addons.connector_drupal_ecommerce.unit.binder import (
     DrupalModelBinder
 )
 from openerp.addons.connector_drupal_ecommerce.unit.delete_synchronizer import (
-    DrupalDeleteSynchronizer
+    DrupalDeleteSynchronizer, export_delete_record
 )
 
 
@@ -35,12 +36,25 @@ class ir_attachment(orm.Model):
         ),
     }
 
-    def copy_data(self, cr, uid, id, default=None, context=None):
+    def copy(self, cr, uid, id, default=None, context=None):
         if default is None:
             default = {}
-        default['drupal_file_bind_ids'] = False
-        return super(ir_attachment, self).copy_data(
+        default['drupal_bind_ids'] = False
+        return super(ir_attachment, self).copy(
             cr, uid, id, default=default, context=context
+        )
+
+    def unlink(self, cr, uid, ids, context=None):
+        session = ConnectorSession(cr, uid, context=context)
+        for record in self.browse(cr, uid, ids, context=context):
+            if record.drupal_bind_ids:
+                for backend in record.drupal_bind_ids:
+                    export_delete_record.delay(
+                        session, 'drupal.file', backend.backend_id.id,
+                        backend.drupal_id
+                    )
+        return super(ir_attachment, self).unlink(
+            cr, uid, ids, context=context
         )
 
 
