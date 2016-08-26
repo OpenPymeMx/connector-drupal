@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-        
+
         <record id="view_vocabulary_drupal_backend_form" model="ir.ui.view">
             <field name="name">view.vocabulary.drupal.backend.form</field>
             <field name="model">drupal.backend</field>
@@ -17,7 +17,7 @@
                             import the Drupal Vocabulary list using
                             the button "Import vocabularies".
                         </p>
-                        <field name="drupal_vocabulary_id" widget="selection" nolabel="1"/>
+                        <field name="drupal_vocabulary_id" nolabel="1" domain="[('backend_id', '=', active_id)]" />
                         <button name="import_vocabulary"
                                 type="object"
                                 class="oe_highlight"
@@ -28,7 +28,7 @@
                             Please select the main category you are using
                             to hold your product hierarchy on OpenERP.
                             Note that on Drupal the Vocabulary cannot content
-                            products related. So you must follow the same 
+                            products related. So you must follow the same
                             behavior on your OpenERP product categorization".
                         </p>
                         <field name="main_product_category_id" nolabel="1"/>
@@ -40,6 +40,6 @@
                 </group>
             </field>
         </record>
-    
+
     </data>
 </openerp>
