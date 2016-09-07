@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-    
+
         <record id="view_drupal_product_node_form" model="ir.ui.view">
             <field name="name">drupal.product.node.form</field>
             <field name="model">drupal.product.node</field>
@@ -16,7 +16,7 @@
                 </form>
             </field>
         </record>
-        
+
         <record id="view_drupal_product_node_tree" model="ir.ui.view">
             <field name="name">drupal.product.node.tree</field>
             <field name="model">drupal.product.node</field>
@@ -26,7 +26,7 @@
                 </tree>
             </field>
         </record>
-    
+
         <record id="view_product_node_form" model="ir.ui.view">
             <field name="name">product.node.form</field>
             <field name="model">product.product</field>
@@ -52,9 +52,9 @@
                 <xpath expr="//sheet/group[1]" position="inside">
                     <newline/>
                     <group name="drupal" string="Drupal Bindings">
-                        <field name="drupal_bind_ids" nolabel="1">
+                        <field name="drupal_bind_ids" nolabel="1" context="{'default_name':name}">
                             <tree>
-                                <field name="backend_id"/>
+                                <field name="backend_id" />
                             </tree>
                         </field>
                     </group>
@@ -85,6 +85,6 @@
                 </tree>
             </field>
         </record>
-        
+
     </data>
 </openerp>
