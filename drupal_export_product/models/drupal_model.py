@@ -22,6 +22,7 @@
 ##############################################################################
 
 from openerp.osv import orm, fields
+from openerp import SUPERUSER_ID
 
 from openerp.addons.connector.session import ConnectorSession
 
@@ -117,3 +118,14 @@ class drupal_backend(orm.Model):
                 )
 
         return True
+
+    def unlink(self, cr, uid, ids, context=None):
+        vocab_obj = self.pool.get('drupal.vocabulary')
+        for record in self.browse(cr, uid, ids, context=context):
+            for vocab in record.drupal_vocabulary_id:
+                vocab_obj.unlink(
+                    cr, SUPERUSER_ID, [vocab.id], context=context
+                )
+        return super(drupal_backend, self).unlink(
+            cr, uid, ids, context=context
+        )
