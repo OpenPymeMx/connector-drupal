@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
 
-from openerp.osv import orm, fields
-from openerp.tools.translate import _
-
 from openerp.addons.connector.exception import InvalidDataError
 from openerp.addons.connector.unit.mapper import (
     ExportMapper, mapping
 )
-
 from openerp.addons.connector_drupal_ecommerce.backend import drupal
-from openerp.addons.connector_drupal_ecommerce.unit.export_synchronizer import (
-    DrupalExporter
+from openerp.addons.connector_drupal_ecommerce.unit.backend_adapter import (
+    DrupalCRUDAdapter
 )
 from openerp.addons.connector_drupal_ecommerce.unit.delete_synchronizer import (
     DrupalDeleteSynchronizer
 )
-from openerp.addons.connector_drupal_ecommerce.unit.backend_adapter import (
-    DrupalCRUDAdapter
+from openerp.addons.connector_drupal_ecommerce.unit.export_synchronizer import (
+    DrupalExporter
 )
+from openerp.osv import orm, fields
+from openerp.tools.translate import _
 
 
 class product_product(orm.Model):
@@ -34,6 +32,7 @@ class product_product(orm.Model):
         if default is None:
             default = {}
         default['drupal_node_bind_ids'] = False
+        default['default_code'] = False
         return super(product_product, self).copy_data(
             cr, uid, id, default=default, context=context
         )
