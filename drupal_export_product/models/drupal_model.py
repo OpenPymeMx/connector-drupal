@@ -21,17 +21,15 @@
 #
 ##############################################################################
 
-from openerp.osv import orm, fields
 from openerp import SUPERUSER_ID
-
 from openerp.addons.connector.session import ConnectorSession
-
 from openerp.addons.connector_drupal_ecommerce.unit.export_synchronizer import (
     export_record
 )
 from openerp.addons.connector_drupal_ecommerce.unit.import_synchronizer import (
     import_batch
 )
+from openerp.osv import orm, fields
 
 
 class drupal_backend(orm.Model):
@@ -122,6 +120,8 @@ class drupal_backend(orm.Model):
     def unlink(self, cr, uid, ids, context=None):
         vocab_obj = self.pool.get('drupal.vocabulary')
         for record in self.browse(cr, uid, ids, context=context):
+            if not record.drupal_vocabulary_id:
+                continue
             vocab_obj.unlink(
                 cr, SUPERUSER_ID, [record.drupal_vocabulary_id.id],
                 context=context
