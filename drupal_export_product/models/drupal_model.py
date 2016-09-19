@@ -105,16 +105,11 @@ class drupal_backend(orm.Model):
             # object as export dependency resolution.
             record.refresh()
             if not record.drupal_bind_ids:
-                bind_id = bind_obj.create(
+                _ = bind_obj.create(
                     cr, uid,
                     {'openerp_id': record.id, 'backend_id': backend.id},
                     context=context
                 )
-                export_record(
-                    session, 'drupal.product.category', bind_id,
-                    fields=['name', 'parent', 'sequence', 'vid']
-                )
-
         return True
 
     def unlink(self, cr, uid, ids, context=None):

@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
 
-import openerp.addons.connector_drupal_ecommerce.consumer as drupalconnect
-
 from openerp.addons.connector.event import (
     on_record_create, on_record_write, on_record_unlink
 )
+import openerp.addons.connector_drupal_ecommerce.consumer as drupalconnect
 from openerp.addons.connector_drupal_ecommerce.unit.export_synchronizer import (
     export_record
 )
 
 
 @on_record_write(model_names='product.category')
-def delay_export_all_bindings(session, model_name, record_id, vals):
+def delay_export_product_category(session, model_name, record_id, vals):
     """ Delay a job which export all the bindings of a record.
 
     In this case, it is called on records of normal models and will delay
@@ -26,10 +25,12 @@ def delay_export_all_bindings(session, model_name, record_id, vals):
     )
 
 
-@on_record_create(model_names='drupal.product.node')
-def export_product_node(session, model_name, record_id, vals):
-    """ Delay a job which export all node bindings record
-    (A binding record being a ``drupal.product.node``)
+@on_record_create(model_names=['drupal.product.node',
+                               'drupal.product.category'])
+def delay_export_all_bindings(session, model_name, record_id, vals):
+    """ Delay a job which export all bindings record
+    (A binding record being a ``drupal.product.node`` or
+    ``drupal.product.category``)
     """
     if session.context.get('connector_no_export'):
         return
@@ -54,6 +55,7 @@ def delay_export_node_bindings(session, model_name, record_id, vals):
         export_record.delay(
             session, binding._model._name, binding.id, fields=fields
         )
+
 
 @on_record_unlink(model_names=['drupal.product.node',
                                'drupal.product.product',
