@@ -28,10 +28,8 @@
             <field name="arch" type="xml">
                 <form string="Drupal Product" version="7.0">
                     <group>
-                        <field name="backend_id"/>
-                        <field name="drupal_id"/>
-                        <field name="created_at" readonly="1"/>
-                        <field name="updated_at" readonly="1"/>
+                        <field name="backend_id" readonly="1"/>
+                        <field name="drupal_id" readonly="1"/>
                     </group>
                     <group string="Inventory Options">
                         <field name="no_stock_sync"/>
@@ -56,6 +54,6 @@
                 </tree>
             </field>
         </record>
-    
+
     </data>
 </openerp>
