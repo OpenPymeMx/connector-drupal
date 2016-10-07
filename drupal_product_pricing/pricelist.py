@@ -200,6 +200,8 @@ class product_product(orm.Model):
         """ Check if all the needed drupal.product.priceitem objects exist
         and create all the records that needed """
         import collections
+        lctx = context
+        lctx['connector_no_export'] = True
         for product in self.browse(cr, uid, ids, context=context):
             # Get all the existing price items ordered by backend
             existing = collections.defaultdict(list)
@@ -212,19 +214,16 @@ class product_product(orm.Model):
             for bind_record in product.drupal_bind_ids:
                 backend = bind_record.backend_id
                 for item in backend.drupal_pricelist_ids:
-                    if item.id not in existing[backend.id]:
+                    if item.id and item.id not in existing[backend.id]:
                         missing.append({
                             'openerp_id': product.id,
                             'pricelist_id': item.id,
                             'backend_id': backend.id,
                         })
-            # TODO: Change this function to stop using write on
-            # 'product.product'object because that is firing the update
-            # event on product_export module
             self.write(
                 cr, uid, [product.id],
                 {'drupal_priceitem_ids': [(0, 0, vals) for vals in missing]},
-                context=context,
+                context=lctx,
             )
             product.refresh()
         return
@@ -277,13 +276,14 @@ class product_template(orm.Model):
             product_obj = self.pool['product.product']
             session = ConnectorSession(cr, uid, context=context)
             product_ids = product_obj.search(
-                cr, uid, [('product_tmpl_id', 'in', ids)], context=context
+                cr, uid, [('product_tmpl_id', 'in', ids)], context=context,
             )
             # when the write is done on the product.product, avoid
             # to fire the event 2 times
             if context.get('from_product_ids'):
-                product_ids = list(set(product_ids) -
-                                   set(context['from_product_ids']))
+                product_ids = list(
+                    set(product_ids) - set(context['from_product_ids'])
+                )
             for prod_id in product_ids:
                 on_product_price_changed.fire(
                     session, product_obj._name, prod_id
@@ -310,16 +310,17 @@ class drupal_product_priceitem(orm.Model):
     _columns = {
         'openerp_id': fields.many2one(
             'product.product', string='Product',
-            required=True, ondelete='cascade'
+            required=True, ondelete='cascade',
         ),
         'created_at': fields.datetime(
-            'Created At (on Drupal)', readonly=True
+            'Created At (on Drupal)', readonly=True,
         ),
         'updated_at': fields.datetime(
-            'Updated At (on Drupal)', readonly=True
+            'Updated At (on Drupal)', readonly=True,
         ),
         'pricelist_id': fields.many2one(
-            'drupal.product.pricelist', string='Drupal pricelist'
+            'drupal.product.pricelist', string='Drupal pricelist',
+            required=True,
         ),
     }
 
