@@ -217,7 +217,9 @@ class ProductInventoryExport(DrupalExporter):
         binder = self.get_binder_for_model()
         drupal_id = binder.to_backend(product.id)
         data = self._get_data(product, fields)
-        self.backend_adapter.update_inventory(drupal_id, data)
+        # Only export inventory when product have been previus exported
+        if drupal_id:
+            self.backend_adapter.update_inventory(drupal_id, data)
 
 
 @drupal

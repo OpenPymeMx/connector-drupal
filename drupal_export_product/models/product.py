@@ -300,7 +300,7 @@ class ProductCategoryAdapter(DrupalCRUDAdapter):
 
     def write(self, id, data):
         """ Override method to add id for record into data """
-        data['tid']=id
+        data['tid'] = id
         return DrupalCRUDAdapter.write(self, id, data)
 
 
