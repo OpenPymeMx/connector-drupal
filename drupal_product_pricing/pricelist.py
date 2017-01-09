@@ -320,7 +320,7 @@ class drupal_product_priceitem(orm.Model):
         ),
         'pricelist_id': fields.many2one(
             'drupal.product.pricelist', string='Drupal pricelist',
-            required=True,
+            required=True, ondelete='cascade',
         ),
     }
 
