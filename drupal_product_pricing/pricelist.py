@@ -38,6 +38,9 @@ from openerp.addons.connector_drupal_ecommerce.backend import drupal
 from openerp.addons.connector_drupal_ecommerce.unit.export_synchronizer import (
     DrupalExporter
 )
+from openerp.addons.connector_drupal_ecommerce.unit.delete_synchronizer import (
+    DrupalDeleteSynchronizer
+)
 from openerp.addons.connector_drupal_ecommerce.unit.backend_adapter import (
     DrupalCRUDAdapter
 )
@@ -342,6 +345,12 @@ class ProductPriceExporter(DrupalExporter):
     default price in Drupal.
     """
     _model_name = ['drupal.product.priceitem']
+
+
+@drupal
+class ProductPriceitemDeleter(DrupalDeleteSynchronizer):
+    _model_name = 'drupal.product.priceitem'
+    _drupal_model = 'priceitem'
 
 
 @drupal

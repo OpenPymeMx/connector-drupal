@@ -18,8 +18,9 @@
 #
 ##############################################################################
 
+import openerp.addons.connector_drupal_ecommerce.consumer as drupalconnect
 from openerp.addons.connector.event import (
-    on_record_create
+    on_record_create, on_record_unlink
 )
 from openerp.addons.connector_drupal_ecommerce.unit.export_synchronizer import (
     export_record
@@ -37,3 +38,18 @@ def export_pricelist(session, model_name, record_id, vals):
         return
     fields = vals.keys()
     export_record.delay(session, model_name, record_id, fields=fields)
+
+
+@on_record_unlink(model_names=['drupal.product.pricelist'])
+def delay_unlink(session, model_name, record_id):
+    """Unlink all price items related with deleted pricelist
+    """
+    priceitems_ids = session.pool.get('drupal.product.priceitem').search(
+        session.cr, session.uid,
+        [('pricelist_id', '=', record_id)],
+        context=session.context,
+    )
+    for item_id in priceitems_ids:
+        drupalconnect.delay_unlink(
+            session, 'drupal.product.priceitem', item_id,
+        )
