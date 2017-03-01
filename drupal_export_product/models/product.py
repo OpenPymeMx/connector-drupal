@@ -6,7 +6,7 @@ from openerp.addons.connector.unit.mapper import (
 )
 from openerp.addons.connector_drupal_ecommerce.backend import drupal
 from openerp.addons.connector_drupal_ecommerce.unit.backend_adapter import (
-    DrupalCRUDAdapter
+    DrupalCRUDAdapter, URLNotFound
 )
 from openerp.addons.connector_drupal_ecommerce.unit.delete_synchronizer import (
     DrupalDeleteSynchronizer
@@ -163,6 +163,14 @@ class ProductNodeAdapter(DrupalCRUDAdapter):
         """ Create a record on the external system """
         result = self._call(self._drupal_model, data, 'post')
         return result['nid']
+
+    def delete(self, id):
+        """ Delete record from external system"""
+        try:
+            return super(ProductNodeAdapter, self).delete(id)
+        except URLNotFound:
+            # Product already have been deleted. Continue without error
+            return
 
 
 @drupal

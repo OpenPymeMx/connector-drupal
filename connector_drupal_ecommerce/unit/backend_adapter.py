@@ -34,6 +34,10 @@ class WrongContent(requests.exceptions.RequestException):
     """The response has the wrong content."""
 
 
+class URLNotFound(requests.exceptions.HTTPError):
+    """Special error for deal with URL Not Found"""
+
+
 class DrupalServices(object):
     """Drupal services class.
 
@@ -84,9 +88,12 @@ class DrupalServices(object):
         try:
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            raise Exception(
-                e.message + ' ' + response.text.encode('utf-8')
-            )
+            if e.response.status_code == 404:
+                raise URLNotFound
+            else:
+                raise Exception(
+                    e.message + ' ' + response.text.encode('utf-8')
+                )
         # Decode json response or raise error
         try:
             response = response.json()
