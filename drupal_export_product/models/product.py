@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from openerp import SUPERUSER_ID
+from openerp.osv import orm, fields
+from openerp.tools.translate import _
+
 from openerp.addons.connector.exception import InvalidDataError
 from openerp.addons.connector.unit.mapper import (
     ExportMapper, mapping
@@ -14,8 +18,6 @@ from openerp.addons.connector_drupal_ecommerce.unit.delete_synchronizer import (
 from openerp.addons.connector_drupal_ecommerce.unit.export_synchronizer import (
     DrupalExporter
 )
-from openerp.osv import orm, fields
-from openerp.tools.translate import _
 
 
 class product_product(orm.Model):
@@ -68,6 +70,107 @@ class drupal_product_node(orm.Model):
 @drupal
 class ProductNodeExport(DrupalExporter):
     _model_name = ['drupal.product.node']
+
+    def _export_dependency(
+        self, relation, binding_model, exporter_class=None,
+        binding_field='drupal_bind_ids', binding_extra_vals=None
+    ):
+        """
+        Export a dependency. The exporter class is a subclass of
+        ``DrupalExporter``. If a more precise class need to be defined,
+        it can be passed to the ``exporter_class`` keyword argument.
+        .. warning:: a commit is done at the end of the export of each
+                     dependency. The reason for that is that we pushed a record
+                     on the backend and we absolutely have to keep its ID.
+                     So you *must* take care not to modify the OpenERP
+                     database during an export, excepted when writing
+                     back the external ID or eventually to store
+                     external data that we have to keep on this side.
+                     You should call this method only at the beginning
+                     of the exporter synchronization,
+                     in :meth:`~._export_dependencies`.
+        :param relation: record to export if not already exported
+        :type relation: :py:class:`openerp.osv.orm.browse_record`
+        :param binding_model: name of the binding model for the relation
+        :type binding_model: str | unicode
+        :param exporter_cls: :py:class:`openerp.addons.connector\
+                                        .connector.ConnectorUnit`
+                             class or parent class to use for the export.
+                             By default: DrupalExporter
+        :type exporter_cls: :py:class:`openerp.addons.connector\
+                                       .connector.MetaConnectorUnit`
+        :param binding_field: name of the one2many field on a normal
+                              record that points to the binding record
+                              (default: drupal_bind_ids).
+                              It is used only when the relation is not
+                              a binding but is a normal record.
+        :type binding_field: str | unicode
+        :binding_extra_vals:  In case we want to create a new binding
+                              pass extra values for this binding
+        :type binding_extra_vals: dict
+        """
+        if not relation:
+            return
+        if exporter_class is None:
+            exporter_class = DrupalExporter
+
+        # wrap is typically True if the relation is for instance a
+        # 'product.product' record but the binding model is
+        # 'drupal.product.product'
+        wrap = relation._model._name != binding_model
+
+        if wrap and hasattr(relation, binding_field):
+            domain = [('openerp_id', '=', relation.id),
+                      ('backend_id', '=', self.backend_record.id)]
+            binding_ids = self.session.search(binding_model, domain)
+            if binding_ids:
+                assert len(binding_ids) == 1, (
+                    'only 1 binding for a backend is '
+                    'supported in _export_dependency')
+                binding_id = binding_ids[0]
+            # we are working with a unwrapped record (e.g.
+            # product.category) and the binding does not exist yet.
+            # Example: I created a product.product and its binding
+            # drupal.product.product and we are exporting it, but we need to
+            # create the binding for the product.category on which it
+            # depends.
+            else:
+                ctx = {'connector_no_export': True}
+                with self.session.change_context(ctx):
+                    with self.session.change_user(SUPERUSER_ID):
+                        bind_values = {
+                            'backend_id': self.backend_record.id,
+                            'openerp_id': relation.id
+                        }
+                        if binding_extra_vals:
+                            bind_values.update(binding_extra_vals)
+                        # If 2 jobs create it at the same time, retry
+                        # one later. A unique constraint (backend_id,
+                        # openerp_id) should exist on the binding model
+                        with self._retry_unique_violation():
+                            binding_id = self.session.create(
+                                binding_model, bind_values
+                            )
+                            # Eager commit to avoid having 2 jobs
+                            # exporting at the same time. The constraint
+                            # will pop if an other job already created
+                            # the same binding. It will be caught and
+                            # raise a RetryableJobError.
+                            context = self.session.context
+                            if not context.get('__test_no_commit'):
+                                self.session.commit()
+        else:
+            # If drupal_bind_ids does not exist we are typically in a
+            # "direct" binding (the binding record is the same record).
+            # If wrap is True, relation is already a binding record.
+            binding_id = relation.id
+
+        # Instead of supper behavior here we run export for every dependency
+        # and relay on _has_to_skip function to avoid send inecesary calls
+        exporter = self.get_connector_unit_for_model(
+            exporter_class, binding_model
+        )
+        exporter.run(binding_id)
 
     def _export_dependencies(self):
         """ Export dependencies for the record """

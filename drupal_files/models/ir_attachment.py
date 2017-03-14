@@ -4,6 +4,7 @@ import logging
 
 from openerp.osv import fields, orm
 
+from openerp.addons.connector.exception import IDMissingInBackend
 from openerp.addons.connector.session import ConnectorSession
 from openerp.addons.connector.unit.mapper import (
     ExportMapper, mapping
@@ -23,7 +24,7 @@ from openerp.addons.connector_drupal_ecommerce.unit.delete_synchronizer import (
 )
 
 
-_logger  = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 
 class ir_attachment(orm.Model):
@@ -88,6 +89,22 @@ class drupal_file(orm.Model):
 @drupal
 class FileExport(DrupalExporter):
     _model_name = ['drupal.file']
+
+    def _should_import(self):
+        """ Before the export, try to read data file from Drupal
+        if not found means there where a problem somewhere and we need
+        to upload file again.
+        """
+        assert self.binding_record
+
+        if self.drupal_id:
+            record = self.backend_adapter.read(self.drupal_id)
+
+            if not record:
+                # in case Drupal id not found force export it
+                raise IDMissingInBackend
+
+        return False
 
     def _has_to_skip(self):
         """
