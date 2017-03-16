@@ -38,6 +38,10 @@ class URLNotFound(requests.exceptions.HTTPError):
     """Special error for deal with URL Not Found"""
 
 
+class AccessDenied(requests.exceptions.HTTPError):
+    """Special error for deal with 403 messages"""
+
+
 class DrupalServices(object):
     """Drupal services class.
 
@@ -88,7 +92,9 @@ class DrupalServices(object):
         try:
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            if e.response.status_code == 404:
+            if e.response.status_code == 403:
+                raise AccessDenied
+            elif e.response.status_code == 404:
                 raise URLNotFound
             else:
                 raise Exception(
@@ -162,7 +168,16 @@ class DrupalCRUDAdapter(CRUDAdapter):
         return self._call('/'.join([self._drupal_model, id]), data, 'put')
 
     def delete(self, id):
-        return self._call('/'.join([self._drupal_model, id]), method='delete')
+        try:
+            return self._call(
+                '/'.join([self._drupal_model, id]), method='delete',
+            )
+        except (URLNotFound, AccessDenied):
+            # Drupal raise errors 403 or 404 when try delete a record
+            # that have been already deleted. As the result is the same we
+            # were trying to accomplish, simply ignore message and
+            # keep moving forward
+            return
 
     def search(self, filters=None):
         """ Get a list of records from a given model """

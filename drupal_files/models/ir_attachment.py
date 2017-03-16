@@ -138,7 +138,6 @@ class FileBinder(DrupalModelBinder):
     _model_name = 'drupal.file'
 
 
-
 @drupal
 class FileAdapter(DrupalCRUDAdapter):
     _model_name = 'drupal.file'
