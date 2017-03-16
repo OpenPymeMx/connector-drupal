@@ -68,8 +68,8 @@
             <field name="arch" type="xml">
                 <form string="Drupal Product Category">
                     <group>
-                        <field name="backend_id"/>
-                        <field name="drupal_id"/>
+                        <field name="backend_id" readonly="1"/>
+                        <field name="drupal_id" readonly="1"/>
                         <field name="name"/>
                     </group>
                 </form>
