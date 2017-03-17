@@ -28,11 +28,10 @@
                 <form string="Drupal Partner" create="false"
                        delete="false" version="7.0">
                     <group>
-                        <field name="backend_id"/>
-                        <field name="drupal_id"/>
+                        <field name="backend_id" readonly="1"/>
+                        <field name="drupal_id" readonly="1"/>
                         <field name="created_at"/>
                         <field name="updated_at"/>
-                        <field name="emailid"/>
                     </group>
                 </form>
             </field>
@@ -48,7 +47,7 @@
                 </tree>
             </field>
         </record>
-        
+
         <record id="view_drupal_address_form" model="ir.ui.view">
             <field name="name">drupal.address.form</field>
             <field name="model">drupal.address</field>
@@ -77,6 +76,6 @@
                 </tree>
             </field>
         </record>
-        
+
     </data>
 </openerp>

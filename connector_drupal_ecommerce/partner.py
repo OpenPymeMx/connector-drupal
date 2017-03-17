@@ -32,7 +32,6 @@ from openerp.tools.translate import _
 from openerp.addons.connector.unit.mapper import (
     ImportMapper, mapping, only_create
 )
-from openerp.addons.connector.exception import IDMissingInBackend
 
 from .backend import drupal
 from .unit.import_synchronizer import DrupalImportSynchronizer
@@ -80,7 +79,6 @@ class drupal_res_partner(orm.Model):
         'updated_at': fields.datetime(
             'Updated At (on Drupal)', readonly=True
         ),
-        'emailid': fields.char('E-mail address'),
     }
 
     _sql_constraints = [
@@ -276,6 +274,11 @@ class PartnerImportAdapter(DrupalCRUDAdapter):
     """ Addapter for import Drupal users """
     _model_name = 'drupal.res.partner'
     _drupal_model = 'user'
+
+    def create(self, data):
+        """ Override create function because actual we need register user """
+        result = self._call('user/register', data, 'post')
+        return result['uid']
 
 
 @drupal

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data noupdate="0">
+        <record id="view_drupal_res_partner_form" model="ir.ui.view">
+            <field name="name">drupal.res.partner.form</field>
+            <field name="model">drupal.res.partner</field>
+            <field name="inherit_id" ref="connector_drupal_ecommerce.view_drupal_res_partner_form"/>
+            <field name="arch" type="xml">
+                <form position="attributes">
+                    <attribute name="create">true</attribute>
+                    <attribute name="delete">true</attribute>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_drupal_res_partner_tree" model="ir.ui.view">
+            <field name="name">drupal.res.partner.tree</field>
+            <field name="model">drupal.res.partner</field>
+            <field name="inherit_id" ref="connector_drupal_ecommerce.view_drupal_res_partner_tree"/>
+            <field name="arch" type="xml">
+                <tree position="attributes">
+                    <attribute name="create">true</attribute>
+                    <attribute name="delete">true</attribute>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_drupal_address_form" model="ir.ui.view">
+            <field name="name">drupal.address.form</field>
+            <field name="model">drupal.address</field>
+            <field name="inherit_id" ref="connector_drupal_ecommerce.view_drupal_address_form"/>
+            <field name="arch" type="xml">
+                <form position="attributes">
+                    <attribute name="create">true</attribute>
+                    <attribute name="delete">true</attribute>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_drupal_address_tree" model="ir.ui.view">
+            <field name="name">drupal.address.tree</field>
+            <field name="model">drupal.address</field>
+            <field name="inherit_id" ref="connector_drupal_ecommerce.view_drupal_address_tree"/>
+            <field name="arch" type="xml">
+                <tree position="attributes">
+                    <attribute name="create">true</attribute>
+                    <attribute name="delete">true</attribute>
+                </tree>
+            </field>
+        </record>
+
+    </data>
+</openerp>
