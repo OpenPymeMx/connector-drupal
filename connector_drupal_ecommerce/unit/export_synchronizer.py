@@ -92,6 +92,8 @@ class DrupalBaseExporter(ExportSynchronizer):
         if not sync:
             return True
         record = self.backend_adapter.read(self.drupal_id)
+        if not record:
+            raise IDMissingInBackend
         if not record.get('changed'):
             # in rare case it can be empty, in doubt, import it
             return False

@@ -165,7 +165,11 @@ class DrupalCRUDAdapter(CRUDAdapter):
         """ Returns the information of a record
         :rtype: dict
         """
-        return self._call('/'.join([self._drupal_model, id]))
+        try:
+            return self._call('/'.join([self._drupal_model, id]))
+        except URLNotFound:
+            # Object not found in Drupal return True
+            return
 
     def write(self, id, data):
         """ Update records on the external system """
