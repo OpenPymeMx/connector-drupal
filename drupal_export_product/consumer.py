@@ -16,7 +16,7 @@ def delay_export_product_category(session, model_name, record_id, vals):
     In this case, it is called on records of normal models and will delay
     the export for all the bindings.
     """
-    fields = ['vid', 'name', 'parent_id']
+    fields = ['vid', 'name', 'parent_id', 'sequence']
     # Only export the object if changed one of the mapped fields
     if not any((True for x in vals.keys() if x in fields)):
         return

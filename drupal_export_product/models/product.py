@@ -377,6 +377,7 @@ class ProductCategoryExportMapper(ExportMapper):
     direct = [
         ('name', 'name'),
         ('vid', 'vid'),
+        ('sequence', 'weight'),
     ]
 
     @mapping
