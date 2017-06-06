@@ -21,27 +21,26 @@
 #
 ###########################################################################
 
-from openerp.osv import orm, fields
+from openerp import fields, models
 
 from openerp.addons.connector.checkpoint import checkpoint
-from openerp.addons.connector.connector import (
-    Environment, install_in_connector
-)
-
-install_in_connector()
+from openerp.addons.connector.connector import ConnectorEnvironment
 
 
 def get_environment(session, model_name, backend_id):
     """ Create an environment to work with.  """
-    backend_record = session.browse('drupal.backend', backend_id)
-    env = Environment(backend_record, session, model_name)
+    backend_record = session.env['drupal.backend'].browse(backend_id)
+    env = ConnectorEnvironment(backend_record, session, model_name)
     lang = backend_record.default_lang_id
     lang_code = lang.code if lang else 'en_US'
-    env.set_lang(code=lang_code)
-    return env
+    if lang_code == session.context.get('lang'):
+        return env
+    else:
+        with env.session.change_context(lang=lang_code):
+            return env
 
 
-class drupal_binding(orm.AbstractModel):
+class DrupalBinding(models.AbstractModel):
     """ Abstract Model for the Bindigs.
 
     All the models used as bindings between Drupal and OpenERP
@@ -52,15 +51,12 @@ class drupal_binding(orm.AbstractModel):
     _inherit = 'external.binding'
     _description = 'Drupal Binding (abstract)'
 
-    _columns = {
-        # 'openerp_id': openerp-side id must be declared in concrete model
-        'backend_id': fields.many2one(
-            'drupal.backend', 'Drupal Backend',
-            required=True, ondelete='restrict'
-        ),
-        # fields.char because 0 is a valid Drupal ID
-        'drupal_id': fields.char('ID on Drupal'),
-    }
+    # 'openerp_id': openerp-side id must be declared in concrete model
+    backend_id = fields.Many2one(
+        'drupal.backend', 'Drupal Backend', required=True, ondelete='restrict',
+    )
+    # fields.char because 0 is a valid Drupal ID
+    drupal_id = fields.Char('ID on Drupal')
 
     # the _sql_contraints cannot be there due to this bug:
     # https://bugs.launchpad.net/openobject-server/+bug/1151703
