@@ -23,6 +23,7 @@
 
 from datetime import datetime
 
+from openerp import models
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
 from openerp.addons.connector.connector import Binder
 
@@ -111,9 +112,6 @@ class DrupalModelBinder(DrupalBinder):
         :param binding_id: OpenERP ID to bind
         :type binding_id: int
         """
-        # avoid to trigger the export when we modify the `drupal_id`
-        context = self.session.context.copy()
-        context['connector_no_export'] = True
         now_fmt = datetime.now().strftime(DEFAULT_SERVER_DATETIME_FORMAT)
         # the external ID can be 0 on Drupal! Prevent False values
         # like False, None, or "", but not 0.
@@ -121,13 +119,12 @@ class DrupalModelBinder(DrupalBinder):
             "external_id or binding_id missing, "
             "got: %s, %s" % (external_id, binding_id)
         )
-        self.environment.model.write(
-            self.session.cr,
-            self.session.uid,
-            binding_id,
-            {'drupal_id': str(external_id),
-             'sync_date': now_fmt},
-            context=context)
+        if not isinstance(binding_id, models.BaseModel):
+            binding_record = self.model.browse(binding_id)
+        # avoid to trigger the export when we modify the `drupal_id`
+        binding_record.with_context(connector_no_export=True).write({
+            'drupal_id': str(external_id), 'sync_date': now_fmt,
+        })
 
     def unwrap_binding(self, binding_id, browse=False):
         """ For a binding record, gives the normal record.
