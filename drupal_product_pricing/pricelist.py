@@ -202,6 +202,7 @@ class product_product(orm.Model):
     def _check_price_items(self, cr, uid, ids, context=None):
         """ Check if all the needed drupal.product.priceitem objects exist
         and create all the records that needed """
+        context = dict(context or {})
         import collections
         lctx = context
         lctx['connector_no_export'] = True
@@ -232,8 +233,7 @@ class product_product(orm.Model):
         return
 
     def write(self, cr, uid, ids, vals, context=None):
-        if context is None:
-            context = {}
+        context = dict(context or {})
         if isinstance(ids, (int, long)):
             ids = [ids]
         context = context.copy()
@@ -266,8 +266,7 @@ class product_template(orm.Model):
         There is no guarantee that's the price actually changed,
         because it depends on the pricelists.
         """
-        if context is None:
-            context = {}
+        context = dict(context or {})
         type_obj = self.pool['product.price.type']
         price_fields = type_obj.sale_price_fields(cr, uid, context=context)
         # restrict the fields to the template ones only, so if
