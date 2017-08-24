@@ -41,7 +41,7 @@ class drupal_backend(orm.Model):
 
     _columns = {
         'drupal_vocabulary_id': fields.many2one(
-            'drupal.vocabulary', 'Vocabulary'
+            'drupal.vocabulary', 'Vocabulary', ondelete='cascade',
         ),
         'main_product_category_id': fields.many2one(
             'product.category', 'Main product category'
