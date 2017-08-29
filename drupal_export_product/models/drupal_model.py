@@ -115,11 +115,12 @@ class drupal_backend(orm.Model):
     def unlink(self, cr, uid, ids, context=None):
         vocab_obj = self.pool.get('drupal.vocabulary')
         for record in self.browse(cr, uid, ids, context=context):
-            if not record.drupal_vocabulary_id:
-                continue
+            # Delete all vocabs linked to current backend 
+            vocab_ids = vocab_obj.search(
+                cr, uid, [('backend_id', 'in', ids)], context=context,
+            )
             vocab_obj.unlink(
-                cr, SUPERUSER_ID, [record.drupal_vocabulary_id.id],
-                context=context
+                cr, SUPERUSER_ID, vocab_ids, context=context,
             )
         return super(drupal_backend, self).unlink(
             cr, uid, ids, context=context
