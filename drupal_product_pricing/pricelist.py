@@ -363,8 +363,7 @@ class ProductPriceitemMapper(ExportMapper):
     @mapping
     def get_price(self, record):
         pricelist = record.pricelist_id.openerp_id
-        context = {'pricelist': pricelist.id}
-        price = record._get_price(context=context)
+        price = record.with_context(pricelist=pricelist.id)._get_price()
         # TODO: Review if there is no a better way to send this param
         price = int(price * 100)
         return {
